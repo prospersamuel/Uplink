@@ -26,10 +26,9 @@ export default function Navbar() {
         {/* App Name */}
         <a
           href="#"
-          className="text-2xl animate-slide-in-left font-extrabold text-neutral-900 dark:text-white tracking-tight"
+          className="animate-slide-in-left"
         >
-          <img src={logo} width={50} alt="logo" />
-          {/* Up<span className="text-primary">Link</span> */}
+          <img src={logo} className="sm:w-[50px] w-[30px]" alt="logo" />
         </a>
 
         {/* Desktop Nav */}
