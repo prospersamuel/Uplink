@@ -1,6 +1,6 @@
 // pages/dashboard/components/DashboardOverview.jsx
 import { motion } from "framer-motion";
-import StatsCard from "../startsCard/PromoterStartscard";
+import PromoterStartscard from "../startscard/PromoterStartscard";
 import Transactions from "../transactions/PromoterTransactions";
 
 export default function PromoterDashboardOverview() {
@@ -12,7 +12,7 @@ export default function PromoterDashboardOverview() {
         transition={{ staggerChildren: 0.1 }}
         className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4"
       >
-          <StatsCard />
+          <PromoterStartscard />
       </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
