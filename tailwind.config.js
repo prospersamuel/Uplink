@@ -1,3 +1,4 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   darkMode: 'class',
   content: ['./index.html', './src/**/*.{js,jsx}'],
@@ -22,5 +23,7 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('@midudev/tailwind-animations'),
+  ],
 };

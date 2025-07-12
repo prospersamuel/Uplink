@@ -4,6 +4,7 @@ import { useApp } from "../../context/Appcontext";
 import { CiMenuFries } from "react-icons/ci";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiLogIn } from "react-icons/fi";
+import logo from '../../assets/logo.png'
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -25,9 +26,10 @@ export default function Navbar() {
         {/* App Name */}
         <a
           href="#"
-          className="text-2xl font-extrabold text-neutral-900 dark:text-white tracking-tight"
+          className="text-2xl animate-slide-in-left font-extrabold text-neutral-900 dark:text-white tracking-tight"
         >
-          Up<span className="text-primary">Link</span>
+          <img src={logo} width={50} alt="" />
+          {/* Up<span className="text-primary">Link</span> */}
         </a>
 
         {/* Desktop Nav */}
