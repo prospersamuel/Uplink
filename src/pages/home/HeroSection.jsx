@@ -3,6 +3,7 @@ import DashboardIllustration from "../../assets/undraw_dashboard_p93p.svg";
 import { useApp } from "../../context/Appcontext";
 import { FaArrowRight, FaChartLine } from "react-icons/fa";
 import { FiShield, FiDollarSign } from "react-icons/fi";
+import logo from '../../assets/favicon.ico'
 
 export default function HeroSection() {
   const { openLogin } = useApp();
@@ -35,6 +36,7 @@ export default function HeroSection() {
           The <span className="bg-gradient-to-r from-primary to-cyan-500 bg-clip-text text-transparent">Referral Marketplace</span> 
           {" "}That Connects Businesses & Promoters
         </h1>
+        <img src={logo} alt="" />
 
         <p className="text-md sm:text-xl max-w-2xl mb-10 font-medium text-neutral-600 dark:text-neutral-300 leading-relaxed">
           Uplink bridges companies needing referrals with skilled promoters. 

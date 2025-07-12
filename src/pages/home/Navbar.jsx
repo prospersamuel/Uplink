@@ -28,7 +28,7 @@ export default function Navbar() {
           href="#"
           className="text-2xl animate-slide-in-left font-extrabold text-neutral-900 dark:text-white tracking-tight"
         >
-          <img src={logo} width={50} alt="" />
+          <img src={logo} width={50} alt="logo" />
           {/* Up<span className="text-primary">Link</span> */}
         </a>
 
