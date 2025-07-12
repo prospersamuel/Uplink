@@ -27,7 +27,7 @@ import { auth } from "../../../services/firebase";
 import PromoterSidebar from "./PromoterSidebar";
 import PromoterDashboardOverview from "./PromoterDashboardOverview";
 import PromoterHeader from "./PromoterHeader";
-import PromoterCampaigns from "../PromoterCampaigns/PromoterCampaigns";
+import PromoterCampaigns from "../promoterCampaigns/PromoterCampaigns";
 import { BrowseCampaigns } from "../browseCampaigns/BrowseCampaigns";
 
 export default function PromoterDashboard() {
