@@ -641,7 +641,6 @@ export default function CompanyCampaignTable() {
                                 text: "This will permanently remove the campaign and its data",
                                 icon: "warning",
                                 showCancelButton: true,
-                                confirmButtonText: "Delete",
                                 cancelButtonText: "Cancel",
                                 confirmButtonColor: "#ef4444",
                                 cancelButtonColor: "#6b7280",

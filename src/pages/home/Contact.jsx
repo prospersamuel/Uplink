@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
-import emailjs from "emailjs-com";
+import emailjs from "@emailjs/browser"
 import contactImage from "../../assets/undraw_contact-us_kcoa.svg";
 import toast from 'react-hot-toast';
 import { FaPaperPlane } from "react-icons/fa";
