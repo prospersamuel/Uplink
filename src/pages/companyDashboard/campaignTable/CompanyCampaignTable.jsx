@@ -63,6 +63,7 @@ export default function CompanyCampaignTable() {
   const [expandedRow, setExpandedRow] = useState(null);
   const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [editValues, setEditValues] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
 
   const toggleExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -72,12 +73,10 @@ export default function CompanyCampaignTable() {
     setEditingCampaignId(campaign.id);
     setEditValues({
       name: campaign.name,
-      referralLink:
-        campaign.referralLink ||
-        `https://yourapp.com/signup?ref=${campaign.id}`,
+      referralLink: campaign.referralLink || `https://yourapp.com/signup?ref=${campaign.id}`,
       budget: campaign.budget,
-      startDate: campaign.startDate?.split("T")[0] || "",
-      endDate: campaign.endDate?.split("T")[0] || "",
+      startDate: campaign.duration?.startDate?.split("T")[0] || "",
+endDate: campaign.duration?.endDate?.split("T")[0] || "",
       status: campaign.status || "draft",
       description: campaign.description || "",
       rewardType: campaign.reward?.type || "percentage",
@@ -94,37 +93,54 @@ export default function CompanyCampaignTable() {
   };
 
   const handleSave = async () => {
+    if (!editValues.name.trim()) {
+      toast.error("Campaign name is required");
+    return;
+  }
+  
+  if (editValues.hasEndDate && !editValues.endDate) {
+    toast.error("End date is required when 'Has End Date' is checked");
+    return;
+  }
+  setIsSaving(true);
     try {
       const updatedData = {
-        ...editValues,
-        reward: {
-          type: editValues.rewardType,
-          amount:
-            editValues.rewardType === "custom" ? 0 : editValues.rewardAmount,
-          trigger: editValues.rewardTrigger,
-          ...(editValues.rewardType === "custom" && {
-            customReward: editValues.customReward,
-          }),
-          ...(editValues.rewardTrigger === "task" && {
-            taskDescription: editValues.taskDescription,
-          }),
-        },
-      };
+  ...editValues,
+  duration: {
+    startDate: editValues.startDate,
+    endDate: editValues.endDate,
+  },
+  reward: {
+    type: editValues.rewardType,
+    amount: editValues.rewardType === "custom" ? 0 : editValues.rewardAmount,
+    trigger: editValues.rewardTrigger,
+    ...(editValues.rewardType === "custom" && {
+      customReward: editValues.customReward,
+    }),
+    ...(editValues.rewardTrigger === "task" && {
+      taskDescription: editValues.taskDescription,
+    }),
+  },
+};
 
-      // Remove all the temporary fields we don't want to save
-      delete updatedData.rewardType;
-      delete updatedData.rewardAmount;
-      delete updatedData.rewardTrigger;
-      delete updatedData.customReward;
-      delete updatedData.taskDescription;
+// Remove temporary fields
+delete updatedData.rewardType;
+delete updatedData.rewardAmount;
+delete updatedData.rewardTrigger;
+delete updatedData.customReward;
+delete updatedData.taskDescription;
+delete updatedData.startDate;
+delete updatedData.endDate;
 
       await updateCampaign(editingCampaignId, updatedData);
       toast.success("Campaign updated successfully!");
       cancelEditing();
       refreshCampaigns();
     } catch (err) {
-      toast.error("Failed to update campaign");
+      toast.error(`Failed to update campaign: ${err.message}`);
       console.error(err);
+    }finally{
+      setIsSaving(false);
     }
   };
 
@@ -375,7 +391,7 @@ export default function CompanyCampaignTable() {
                         />
                       ) : (
                         <p className="font-medium">
-                          {campaign.startDate?.split("T")[0] || "-"}
+                          {campaign.duration?.startDate?.split("T")[0] || "-"}
                         </p>
                       )}
                     </div>
@@ -395,7 +411,7 @@ export default function CompanyCampaignTable() {
                         />
                       ) : (
                         <p className="font-medium">
-                          {campaign.endDate?.split("T")[0] || "-"}
+                          {campaign.duration?.endDate?.split("T")[0] || "-"}
                         </p>
                       )}
                     </div>
@@ -606,9 +622,10 @@ export default function CompanyCampaignTable() {
                           </button>
                           <button
                             onClick={handleSave}
-                            className="text-xs md:text-sm bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 md:px-4 md:py-2 rounded transition-colors flex items-center gap-1"
+                            disabled={isSaving}
+                            className={`text-xs ${isSaving ? 'opacity-50 cursor-not-allowed' : ''} md:text-sm bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 md:px-4 md:py-2 rounded transition-colors flex items-center gap-1`}
                           >
-                            <FiSave size={14} /> Save Changes
+                            <FiSave size={14} /> {isSaving ? 'Saving...' : 'Save Changes'}
                           </button>
                         </div>
                       ) : (
@@ -655,6 +672,7 @@ export default function CompanyCampaignTable() {
                                   toast.success(
                                     "Campaign deleted successfully"
                                   );
+                                  refreshCampaigns();
                                 } catch (error) {
                                   toast.error("Failed to delete campaign");
                                 }

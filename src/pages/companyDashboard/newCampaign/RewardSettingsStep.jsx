@@ -45,17 +45,23 @@ export const RewardSettingsStep = ({
           Reward Type
         </label>
         <Tabs
-          selectedIndex={["percentage", "fixed", "custom"].indexOf(
+          selectedIndex={["fixed", "percentage", "custom"].indexOf(
             campaignData.rewardType
           )}
           onSelect={(index) =>
             setCampaignData({
               ...campaignData,
-              rewardType: ["percentage", "fixed", "custom"][index],
+              rewardType: ["fixed", "percentage", "custom"][index],
             })
           }
         >
           <TabList className="flex border-b border-slate-200 dark:border-slate-600">
+            <Tab
+              className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
+              selectedClassName="bg-primary dark:text-white text-white rounded-t-md"
+            >
+              Fixed
+            </Tab>
             <Tab
               className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
               selectedClassName="bg-primary rounded-t-md dark:text-white text-white"
@@ -66,17 +72,28 @@ export const RewardSettingsStep = ({
               className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
               selectedClassName="bg-primary dark:text-white text-white rounded-t-md"
             >
-              Fixed
-            </Tab>
-            <Tab
-              className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
-              selectedClassName="bg-primary dark:text-white text-white rounded-t-md"
-            >
               Custom
             </Tab>
           </TabList>
 
           <div className="mt-4">
+
+             <TabPanel>
+              <div className="flex items-center gap-4">
+                <span className="text-slate-500">₦</span>
+                <input
+                  type="number"
+                  min="1"
+                  value={campaignData.rewardAmount}
+                  onChange={(e) =>
+                    handleRewardAmountChange(e, "rewardAmount")
+                  }
+                  className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <span className="text-slate-500">per successful referral</span>
+              </div>
+            </TabPanel>
+            
             <TabPanel>
               <div className="flex items-center gap-4">
                 <input
@@ -95,21 +112,7 @@ export const RewardSettingsStep = ({
                 Example: {calculateEarnings()}
               </div>
             </TabPanel>
-            <TabPanel>
-              <div className="flex items-center gap-4">
-                <span className="text-slate-500">₦</span>
-                <input
-                  type="number"
-                  min="1"
-                  value={campaignData.rewardAmount}
-                  onChange={(e) =>
-                    handleRewardAmountChange(e, "rewardAmount")
-                  }
-                  className="w-24 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <span className="text-slate-500">per successful referral</span>
-              </div>
-            </TabPanel>
+           
             <TabPanel>
               <input
                 type="text"

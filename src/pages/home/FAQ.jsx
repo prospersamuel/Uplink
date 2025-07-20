@@ -145,7 +145,7 @@ export default function FAQ() {
                   <div className="flex-shrink-0">
                     {faq.icon}
                   </div>
-                  <h3 className="font-semibold text-neutral-900 dark:text-white">
+                  <h3 className="font-semibold text-neutral-700 dark:text-white">
                     {faq.question}
                   </h3>
                 </div>

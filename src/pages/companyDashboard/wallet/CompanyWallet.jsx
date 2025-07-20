@@ -26,7 +26,7 @@ export default function CompanyWallet() {
 
 
   return (
-    <div className="space-y-6 h-[73vh] overflow-auto">
+    <div className="space-y-6">
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
         <div className="flex justify-between items-start">
           <div>

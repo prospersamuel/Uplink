@@ -17,7 +17,7 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
     name: "",
     targetUrl: "",
     status: "draft",
-    rewardType: "percentage",
+    rewardType: "fixed",
     rewardAmount: 10,
     rewardTrigger: "signup",
     taskDescription : '',
@@ -33,6 +33,7 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [campaignData, setCampaignData] = useState(INITIAL_CAMPAIGN_DATA);
   const { data } = useCompanyData();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
   e.preventDefault();
@@ -60,7 +61,7 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
 
     // Budget validation
   if (campaignData.budget > data.balance) {
-    toast.error(`Insufficient funds! Your balance is ₦${data.balance} but budget is ₦${campaignData.budget}`);
+    toast.error(`Insufficient funds! Your balance is ₦${data.balance.toFixed(2)} but budget is ₦${campaignData.budget}`);
     setCurrentStep(0)
     return;
   }
@@ -72,36 +73,8 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
     return;
   }
 
-  const referralLink = `${campaignData.targetUrl}`;
-
-  const newCampaign = {
-  name: campaignData.name,
-  status: campaignData.status,
-  targetUrl: campaignData.targetUrl,
-reward: {
-    type: campaignData.rewardType,
-    amount: campaignData.rewardType === "custom" ? 0 : campaignData.rewardAmount,
-    trigger: campaignData.rewardTrigger,
-    ...(campaignData.rewardType === "custom" && { 
-      customReward: campaignData.customReward 
-    }),
-    ...(campaignData.rewardTrigger === "task" && {
-      taskDescription: campaignData.taskDescription
-    })
-  },
-  duration: {
-    start: campaignData.startDate,
-    end: campaignData.hasEndDate ? campaignData.endDate : null,
-  },
-  referralLink,
-  createdAt: serverTimestamp(),
-  ownerId: user.uid,
-  description: campaignData.description,
-  totalClicks: campaignData.totalClicks,
-  budget: campaignData.budget
-};
-
   try {
+    setIsSubmitting(true); // Start loading
     // Start a Firestore batch to ensure atomic operations
     const batch = writeBatch(db);
     
@@ -128,9 +101,9 @@ reward: {
         })
       },
       duration: {
-        start: campaignData.startDate,
-        end: campaignData.hasEndDate ? campaignData.endDate : null,
-      },
+  startDate: new Date(campaignData.startDate).toISOString(),
+  endDate: campaignData.hasEndDate ? new Date(campaignData.endDate).toISOString() : null,
+},
       referralLink: campaignData.targetUrl,
       createdAt: serverTimestamp(),
       ownerId: user.uid,
@@ -158,6 +131,7 @@ reward: {
 
     
     toast.success("Campaign created successfully!");
+    setIsSubmitting(false); // Stop loading
     setCampaignData(INITIAL_CAMPAIGN_DATA);
     setCurrentStep(0);
     if (typeof onCreate === "function") {
@@ -296,6 +270,7 @@ reward: {
               prevStep={prevStep}
               nextStep={nextStep}
               handleSubmit={handleSubmit}
+              isSubmitting={isSubmitting}
             />
           </form>
         </div>

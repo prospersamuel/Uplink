@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, getDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 
 export const recomputeActiveCampaignCount = async (userId) => {

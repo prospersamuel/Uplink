@@ -154,7 +154,7 @@ export default function LoginForm({
       <button
         disabled={loading}
         type="submit"
-        className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-cyan-500 text-white font-semibold rounded-lg shadow-md hover:shadow-lg transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-cyan-500 text-white rounded-lg shadow-md hover:shadow-lg uppercase font-semibold transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {loading ? (
           <span className="inline-flex items-center justify-center">

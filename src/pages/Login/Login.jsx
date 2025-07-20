@@ -11,6 +11,7 @@ import AlertBox from "../../components/Alertbox";
 import { validateField } from "../../services/Validate";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
+import { errorMessages } from "./errorMessages";
 
 const formFields = {
   login: [
@@ -34,19 +35,6 @@ export default function Login({ onClose }) {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
-  const errorMessages = {
-    "auth/email-already-in-use":
-      "Email already in use. Try logging in instead.",
-    "auth/invalid-email": "Please enter a valid email address.",
-    "auth/user-not-found": "No account found with this email.",
-    "auth/wrong-password": "Incorrect password.",
-    "auth/too-many-requests": "Too many attempts. Please try again later.",
-    "auth/network-request-failed": "Network error. Check your connection.",
-    "auth/weak-password": "Password should be at least 6 characters.",
-    "auth/invalid-credential": "Invalid login credentials.",
-    "auth/operation-not-allowed": "Email/password login is not enabled.",
-    "auth/requires-recent-login": "Please log in again.",
-  };
 
   const getFriendlyError = (code) =>
     errorMessages[code] || "Something went wrong.";
@@ -133,7 +121,7 @@ export default function Login({ onClose }) {
       showAlert({
         type: "error",
         title: "Google Sign-in Failed",
-        message: err.message || "Something went wrong.",
+        message: getFriendlyError(err.code) || "Something went wrong!",
       });
     } finally {
       setGoogleLoading(false);
@@ -303,7 +291,7 @@ export default function Login({ onClose }) {
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 text-4xl font-bold text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
+            className="absolute top-4 right-4 text-4xl font-bold text-neutral-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-white transition-colors"
           >
             &times;
           </button>

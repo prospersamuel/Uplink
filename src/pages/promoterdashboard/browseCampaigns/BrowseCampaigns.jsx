@@ -1,29 +1,29 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
+import toast from "react-hot-toast";
+import { CiMoneyBill } from "react-icons/ci";
 import { 
-  FiX, FiUsers, 
   FiLink, FiAward, FiClock, FiGrid, FiList,
-  FiChevronDown, FiChevronUp, FiCopy
+  FiChevronDown, FiChevronUp, FiCopy, FiCheck
 } from "react-icons/fi";
 import { MdCampaign } from "react-icons/md";
 
-// Mock Data with target URLs
+// Mock Data with target URLs (same as before)
 const referralCampaigns = [
   {
     id: 1,
     company: "Stripe",
     title: "Refer SaaS Businesses",
-    description: "Earn $500 for every enterprise customer you refer to Stripe's payment platform.",
+    description: "Earn ₦500 for every enterprise customer you refer to Stripe's payment platform.",
     type: "B2B Referral",
-    reward: "$500 fixed",
-    payout: "Instant on conversion",
+    rewardType: "Fixed",
+    rewardAmount: "₦500",
     conversionWindow: "30 days",
-    remainingBudget: "$15,000",
+    remainingBudget: "₦15,000",
     status: "active",
-    requirements: "Must provide contact email of decision-maker",
-    tracking: "Unique referral link + cookie tracking",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://stripe.com",
-    baseReferralUrl: "https://stripe.com/ref?referral_code="
   },
   {
     id: 2,
@@ -31,47 +31,44 @@ const referralCampaigns = [
     title: "Team Plan Referrals",
     description: "Get 15% of first-year revenue for teams you bring to Notion.",
     type: "Revenue Share",
-    reward: "15% recurring",
-    payout: "Quarterly",
+    rewardType: "Percentage",
+    rewardAmount: "%10",
     conversionWindow: "90 days",
     remainingBudget: "Unlimited",
     status: "active",
-    requirements: "Minimum 5-seat team signup",
-    tracking: "Link attribution + admin confirmation",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://notion.so",
-    baseReferralUrl: "https://notion.so/signup?ref="
   },
   {
     id: 3,
     company: "Brex",
     title: "Startup Card Referrals",
-    description: "$300 for every funded startup that activates a Brex corporate card.",
+    description: "₦300 for every funded startup that activates a Brex corporate card.",
     type: "Verified Conversion",
-    reward: "$300 fixed",
-    payout: "After first transaction",
+    rewardType: "Custom",
+    rewardAmount: "₦500",
     conversionWindow: "60 days",
-    remainingBudget: "$8,200",
+    remainingBudget: "₦8,200",
     status: "active",
-    requirements: "Startup must raise ≥$500k",
-    tracking: "Referral code at application",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://brex.com",
-    baseReferralUrl: "https://brex.com/apply?referral_id="
   },
   {
     id: 4,
     company: "Zoom",
     title: "Enterprise Plan Referrals",
-    description: "Earn $1,000 for each enterprise Zoom plan referral.",
+    description: "Earn ₦1,000 for each enterprise Zoom plan referral.",
     type: "B2B Referral",
-    reward: "$1,000 fixed",
-    payout: "After 60 days",
+    rewardType: "Fixed",
+    rewardAmount: "₦1000",
     conversionWindow: "90 days",
-    remainingBudget: "$25,000",
+    remainingBudget: "₦25,000",
     status: "active",
-    requirements: "Minimum 100-seat commitment",
-    tracking: "Unique referral link",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://zoom.us",
-    baseReferralUrl: "https://zoom.us/business/signup?ref="
   },
   {
     id: 5,
@@ -79,31 +76,29 @@ const referralCampaigns = [
     title: "Plus Plan Referrals",
     description: "15% revenue share for first year of Shopify Plus referrals.",
     type: "Revenue Share",
-    reward: "15% recurring",
-    payout: "Monthly",
+    rewardType: "Percentage",
+    rewardAmount: "%15",
     conversionWindow: "60 days",
     remainingBudget: "Unlimited",
     status: "active",
-    requirements: "Minimum $2k/month MRR",
-    tracking: "Partner dashboard tracking",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://shopify.com",
-    baseReferralUrl: "https://shopify.com/plus?partner_code="
   },
   {
     id: 6,
     company: "Webflow",
     title: "Agency Partner Referrals",
-    description: "$500 for each new agency partner referral.",
+    description: "₦500 for each new agency partner referral.",
     type: "Verified Conversion",
-    reward: "$500 fixed",
-    payout: "After first project",
+    rewardType: "Fixed",
+    rewardAmount: "₦200",
     conversionWindow: "45 days",
-    remainingBudget: "$12,000",
+    remainingBudget: "₦12,000",
     status: "paused",
-    requirements: "Agency must have ≥5 employees",
-    tracking: "Application referral field",
+    startDate: '02-5-2025',
+    endDate: '02-5-2025',
     targetUrl: "https://webflow.com",
-    baseReferralUrl: "https://webflow.com/agency/apply?referral="
   }
 ];
 
@@ -111,27 +106,42 @@ export const BrowseCampaigns = () => {
   const [viewType, setViewType] = useState('list');
   const [filters, setFilters] = useState({
     type: '',
-    payout: '',
+    rewardType: '',
     status: 'active'
   });
+  const [joinedCampaigns, setJoinedCampaigns] = useState([]);
+
+  const toggleCampaignJoin = (campaignId) => {
+    if (joinedCampaigns.includes(campaignId)) {
+      setJoinedCampaigns(joinedCampaigns.filter(id => id !== campaignId));
+    } else {
+      setJoinedCampaigns([...joinedCampaigns, campaignId]);
+      toast.success('Successfully joined campaign!');
+    }
+  };
 
   const filteredCampaigns = referralCampaigns.filter(campaign => {
     return (
       (filters.type === '' || campaign.type.includes(filters.type)) &&
-      (filters.payout === '' || campaign.payout.includes(filters.payout)) &&
-      (filters.status === '' || campaign.status === filters.status)
+      (filters.rewardType === '' || campaign.rewardType.includes(filters.rewardType)) &&
+      (filters.status === '' || campaign.status === filters.status) 
     );
   });
 
   return (
-    <div className="space-y-4 h-[73vh] overflow-auto">
-      {/* Header */}
-      <div className="flex justify-between sticky rounded-lg border-b-2 mb-3 border-primary top-0 p-5 dark:bg-slate-800 bg-white items-center ">
+    <div className="space-y-4">
+      {/* Header (same as before) */}
+      <div className="flex justify-between flex-wrap rounded-lg border-b-2 mb-3 border-primary p-3 dark:bg-slate-800 bg-white items-center ">
         <div>
           <h2 className="text-2xl font-bold text-slate-800 dark:text-white">Referral Campaigns</h2>
           <p className="text-slate-500 dark:text-slate-400">
             {filteredCampaigns.length} available {filteredCampaigns.length === 1 ? 'campaign' : 'campaigns'}
           </p>
+          {joinedCampaigns.length > 0 && (
+            <p className="text-sm text-green-600 dark:text-green-400">
+              {joinedCampaigns.length} joined {joinedCampaigns.length === 1 ? 'campaign' : 'campaigns'}
+            </p>
+          )}
         </div>
 
         <div className="flex gap-5">
@@ -143,7 +153,7 @@ export const BrowseCampaigns = () => {
                 onChange={(e) => setFilters({...filters, type: e.target.value})}
                 className="w-full p-2 rounded-lg border focus:outline-none focus:outline-primary dark:bg-slate-800 border-primary  dark:text-white text-sm"
               >
-                <option value="">All Types</option>
+                <option value="">Campaign type</option>
                 <option value="B2B">B2B Referrals</option>
                 <option value="Revenue">Revenue Share</option>
                 <option value="Verified">Verified Conversion</option>
@@ -152,15 +162,14 @@ export const BrowseCampaigns = () => {
             
             <div>
               <select
-                value={filters.payout}
-                onChange={(e) => setFilters({...filters, payout: e.target.value})}
+                value={filters.rewardType}
+                onChange={(e) => setFilters({...filters, rewardType: e.target.value})}
                 className="w-full p-2 rounded-lg border focus:outline-none focus:outline-primary dark:bg-slate-800 border-primary dark:text-white text-sm"
               >
-                <option value="">All Payouts</option>
-                <option value="Instant">Instant</option>
-                <option value="After">After Conversion</option>
-                <option value="Quarterly">Quarterly</option>
-                <option value="Monthly">Monthly</option>
+                <option value="">Reward type</option>
+                <option value="Fixed">Fixed</option>
+                <option value="Percentage">Percentage</option>
+                <option value="Custom">Custom</option>
               </select>
             </div>
             
@@ -198,25 +207,17 @@ export const BrowseCampaigns = () => {
 
       {/* Campaigns Display */}
       {filteredCampaigns.length > 0 ? (
-        viewType === 'grid' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCampaigns.map(campaign => (
-              <CampaignCard 
-                key={campaign.id} 
-                campaign={campaign}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {filteredCampaigns.map(campaign => (
-              <CampaignListItem 
-                key={campaign.id}
-                campaign={campaign}
-              />
-            ))}
-          </div>
-        )
+        <div className={viewType === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-3"}>
+          {filteredCampaigns.map(campaign => (
+            <CampaignItem 
+              key={campaign.id}
+              campaign={campaign}
+              isJoined={joinedCampaigns.includes(campaign.id)}
+              onToggleJoin={toggleCampaignJoin}
+              viewType={viewType}
+            />
+          ))}
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0 }}
@@ -226,7 +227,7 @@ export const BrowseCampaigns = () => {
           <div className="text-slate-400 dark:text-slate-500">
             <p className="text-lg">No campaigns match your filters.</p>
             <button
-              onClick={() => setFilters({ type: '', payout: '', status: 'active' })}
+              onClick={() => setFilters({ type: '', status: 'active' })}
               className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
             >
               Clear all filters
@@ -238,16 +239,14 @@ export const BrowseCampaigns = () => {
   );
 };
 
-// Campaign Card Component (Grid View)
-const CampaignCard = ({ campaign }) => {
+// Unified Campaign Item Component
+const CampaignItem = ({ campaign, isJoined, onToggleJoin, viewType }) => {
   const [expanded, setExpanded] = useState(false);
   const [referralLink, setReferralLink] = useState('');
-  const [copied, setCopied] = useState(false);
 
   const generateReferralLink = () => {
-    // Generate a random referral code (in a real app, this would come from your backend)
-    const referralCode = `ref_${Math.random().toString(36).substring(2, 8)}`;
-    const generatedLink = `${campaign.baseReferralUrl}${referralCode}`;
+    const referralCode = `ref=${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const generatedLink = `${campaign.targetUrl}?${referralCode}`;
     setReferralLink(generatedLink);
     return generatedLink;
   };
@@ -259,234 +258,233 @@ const CampaignCard = ({ campaign }) => {
     } else {
       navigator.clipboard.writeText(referralLink);
     }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    toast.success('Referral link copied successfully');
   };
+
+  // Common status badge component
+  const StatusBadge = ({ status }) => (
+    <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${
+      status === 'active' 
+        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
+        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
+    }`}>
+      {status}
+    </span>
+  );
+
+  // Common reward info component
+  const RewardInfo = ({ icon: Icon, label, value }) => (
+    <div className="flex items-center gap-2">
+      <Icon className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
+      <div>
+        {viewType === 'grid' && <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>}
+        <p className={`${viewType === 'grid' ? 'text-sm' : 'text-sm'} font-medium text-slate-800 dark:text-white`}>
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+
+  // Common action buttons
+  const ActionButtons = () => (
+    <div className="flex gap-2">
+      <button
+        onClick={() => onToggleJoin(campaign.id)}
+        className={`${viewType === 'grid' ? 'flex-1' : ''} py-2 px-4 rounded-lg transition text-sm font-medium ${
+          isJoined 
+            ? 'bg-purple-600 hover:bg-purple-700 text-white' 
+            : 'bg-blue-600 hover:bg-blue-700 text-white'
+        }`}
+      >
+        {isJoined ? (
+          <span className="flex items-center justify-center gap-2">
+            {viewType === 'grid' ? <><FiCheck /> Joined</> : 'Leave'}
+          </span>
+        ) : (
+          viewType === 'grid' ? 'Join Campaign' : 'Join'
+        )}
+      </button>
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2 rounded-lg px-3 transition text-sm font-medium"
+      >
+        {expanded ? (
+          viewType === 'grid' ? 'Less' : <FiChevronUp size={14} />
+        ) : (
+          viewType === 'grid' ? 'More' : <FiChevronDown size={14} />
+        )}
+      </button>
+    </div>
+  );
+
+  // Common expanded content
+  const ExpandedContent = () => (
+    <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
+      <div className={`${viewType === 'grid' ? 'grid grid-cols-1' : 'grid grid-cols-1 md:grid-cols-4'} gap-4 mb-4`}>
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Description</p>
+          <p className="text-sm text-slate-800 dark:text-white">{campaign.description}</p>
+        </div>
+        <div className="flex gap-7">
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Start Date</p>
+          <p className="text-sm text-slate-800 dark:text-white">{campaign.startDate}</p>
+        </div>
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">End Date</p>
+          <p className="text-sm text-slate-800 dark:text-white">{campaign.endDate}</p>
+        </div>
+        </div>
+        <div>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Target URL</p>
+          <a 
+            href={campaign.targetUrl} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+          >
+            {campaign.targetUrl}
+          </a>
+        </div>
+        {viewType === 'list' && (
+          <div>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Campaign Type</p>
+            <p className="text-sm text-slate-800 dark:text-white">{campaign.type}</p>
+          </div>
+        )}
+      </div>
+
+      {isJoined ? (
+        <>
+          {referralLink ? (
+            <div className="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg mb-3">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Your referral link</p>
+              <div className="flex items-center gap-2">
+                <a 
+                  href={referralLink} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex-1 break-all"
+                >
+                  {referralLink}
+                </a>
+                <button
+                  onClick={copyToClipboard}
+                  className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600"
+                  title="Copy to clipboard"
+                >
+                  <FiCopy className="text-slate-600 dark:text-slate-300" />
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          <div className={`${viewType === 'grid' ? '' : 'flex flex-col sm:flex-row'} gap-3`}>
+            <button
+              onClick={copyToClipboard}
+              className={`${viewType === 'grid' ? 'w-full' : 'flex-1'} bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2`}
+            >
+              <FiLink />
+              {referralLink ? 'Copy Referral Link' : 'Get Referral Link'}
+            </button>
+            {viewType === 'list' && (
+              <button
+                onClick={() => setExpanded(false)}
+                className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-800 border border-primary text-slate-800 dark:text-white py-2 px-4 rounded-lg transition text-sm font-medium"
+              >
+                Close
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-2 text-sm text-slate-500 dark:text-slate-400">
+          Join the campaign to get your referral link
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: viewType === 'grid' ? 20 : 0 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition"
+      className={`bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition ${
+        viewType === 'list' ? 'p-4' : 'p-5'
+      }`}
     >
-      <div className="p-5">
-        <div className="flex justify-between items-start mb-3">
-          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-            {campaign.company}
-          </span>
-          <span className={`text-xs font-medium px-2.5 py-0.5 rounded ${
-            campaign.status === 'active' 
-              ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-              : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-          }`}>
-            {campaign.status}
-          </span>
-        </div>
-        
-        <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{campaign.title}</h3>
-        <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 line-clamp-2">{campaign.description}</p>
-        
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2">
-            <FiAward className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Reward</p>
-              <p className="text-sm font-medium text-slate-800 dark:text-white">{campaign.reward}</p>
+      {viewType === 'grid' ? (
+        // Grid View Layout
+        <div>
+          <div className="flex justify-between items-start mb-3">
+            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+              {campaign.company}
+            </span>
+            <div className="flex gap-2">
+              <StatusBadge status={campaign.status} />
+              {isJoined && (
+                <span className="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
+                  Joined
+                </span>
+              )}
             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <FiClock className="text-blue-600 dark:text-blue-400 flex-shrink-0" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Conversion Window</p>
-              <p className="text-sm font-medium text-slate-800 dark:text-white">{campaign.conversionWindow}</p>
-            </div>
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-2">{campaign.title}</h3>
+          {/* <p className="text-slate-600 dark:text-slate-300 text-sm mb-4 line-clamp-2">{campaign.description}</p> */}
+          
+          <div className="space-y-3 mb-4">
+            <RewardInfo icon={FiAward} label="Reward" value={campaign.rewardType} />
+            <RewardInfo icon={CiMoneyBill} label="Reward Amount" value={campaign.rewardAmount} />
+            <RewardInfo icon={FiClock} label="Conversion Window" value={campaign.conversionWindow} />
           </div>
+          
+          <ActionButtons />
         </div>
-        
-        <button
-          onClick={() => setExpanded(!expanded)}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium mb-2"
-        >
-          {expanded ? 'Show Less' : 'Show More'}
-        </button>
-
-        <AnimatePresence>
-          {expanded && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="overflow-hidden"
-            >
-              <div className="pt-4 border-t border-slate-100 dark:border-slate-700">
-                <div className="grid grid-cols-1 gap-3 mb-4">
-                  <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Requirements</p>
-                    <p className="text-sm text-slate-800 dark:text-white">{campaign.requirements}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Tracking Method</p>
-                    <p className="text-sm text-slate-800 dark:text-white">{campaign.tracking}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Target URL</p>
-                    <a 
-                      href={campaign.targetUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                    >
-                      {campaign.targetUrl}
-                    </a>
-                  </div>
-                </div>
-
-                {referralLink ? (
-                  <div className="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg mb-3">
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Your referral link</p>
-                    <div className="flex items-center gap-2">
-                      <a 
-                        href={referralLink} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex-1 break-all"
-                      >
-                        {referralLink}
-                      </a>
-                      <button
-                        onClick={copyToClipboard}
-                        className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600"
-                        title="Copy to clipboard"
-                      >
-                        <FiCopy className="text-slate-600 dark:text-slate-300" />
-                      </button>
-                    </div>
-                    {copied && (
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">Copied to clipboard!</p>
-                    )}
-                  </div>
-                ) : null}
-
-                <button
-                  onClick={() => {
-                    const link = generateReferralLink();
-                    copyToClipboard();
-                  }}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
-                >
-                  <FiLink />
-                  {referralLink ? 'Copy Referral Link' : 'Get Referral Link'}
-                </button>
+      ) : (
+        // List View Layout
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+          {/* Company and Title */}
+          <div className="md:col-span-4 flex items-center gap-4">
+            <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
+              <MdCampaign className="text-blue-600 dark:text-blue-400 text-xl" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-bold text-slate-800 dark:text-white truncate">{campaign.title}</h3>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{campaign.company}</p>
+                <StatusBadge status={campaign.status} />
+                {isJoined && (
+                  <span className="bg-purple-100 text-purple-800 text-xs px-2 py-0.5 rounded dark:bg-purple-900 dark:text-purple-300">
+                    Joined
+                  </span>
+                )}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.div>
-  );
-};
-
-// Campaign List Item Component (List View)
-const CampaignListItem = ({ campaign }) => {
-  const [expanded, setExpanded] = useState(false);
-  const [referralLink, setReferralLink] = useState('');
-  const [copied, setCopied] = useState(false);
-
-  const generateReferralLink = () => {
-    // Generate a random referral code (in a real app, this would come from your backend)
-    const referralCode = `ref_${Math.random().toString(36).substring(2, 8)}`;
-    const generatedLink = `${campaign.baseReferralUrl}${referralCode}`;
-    setReferralLink(generatedLink);
-    return generatedLink;
-  };
-
-  const copyToClipboard = () => {
-    if (!referralLink) {
-      const link = generateReferralLink();
-      navigator.clipboard.writeText(link);
-    } else {
-      navigator.clipboard.writeText(referralLink);
-    }
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-      className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-100 dark:border-slate-700 hover:shadow-md transition"
-    >
-      <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-        {/* Company and Title */}
-        <div className="md:col-span-4 flex items-center gap-4">
-          <div className="bg-blue-100 dark:bg-blue-900/50 p-3 rounded-lg">
-            <MdCampaign className="text-blue-600 dark:text-blue-400 text-xl" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-bold text-slate-800 dark:text-white truncate">{campaign.title}</h3>
-            <div className="flex items-center gap-2">
-              <p className="text-sm text-slate-500 dark:text-slate-400 truncate">{campaign.company}</p>
-              <span className={`text-xs px-2 py-0.5 rounded ${
-                campaign.status === 'active' 
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300' 
-                  : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-              }`}>
-                {campaign.status}
-              </span>
             </div>
           </div>
-        </div>
-        
-        {/* Reward */}
-        <div className="md:col-span-2">
-          <div className="flex items-center gap-2">
-            <FiAward className="text-blue-600 dark:text-blue-400 flex-shrink-0 md:hidden" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 md:hidden">Reward</p>
-              <p className="font-medium text-slate-800 dark:text-white">{campaign.reward}</p>
-            </div>
+          
+          {/* Reward */}
+          <div className="md:col-span-2">
+            <RewardInfo icon={FiAward} value={campaign.rewardType} />
+          </div>
+          
+          {/* Payout */}
+          <div className="md:col-span-2">
+            <RewardInfo icon={CiMoneyBill} value={campaign.rewardAmount} />
+          </div>
+          
+          {/* Conversion Window */}
+          <div className="md:col-span-2">
+            <RewardInfo icon={FiClock} value={campaign.conversionWindow} />
+          </div>
+          
+          {/* Action Button */}
+          <div className="md:col-span-2 flex justify-end">
+            <ActionButtons />
           </div>
         </div>
-        
-        {/* Payout */}
-        <div className="md:col-span-2">
-          <div className="flex items-center gap-2">
-            <FiClock className="text-blue-600 dark:text-blue-400 flex-shrink-0 md:hidden" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 md:hidden">Payout</p>
-              <p className="font-medium text-slate-800 dark:text-white">{campaign.payout}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Conversion Window */}
-        <div className="md:col-span-2">
-          <div className="flex items-center gap-2">
-            <FiUsers className="text-blue-600 dark:text-blue-400 flex-shrink-0 md:hidden" />
-            <div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 md:hidden">Conversion</p>
-              <p className="font-medium text-slate-800 dark:text-white">{campaign.conversionWindow}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Action Button */}
-        <div className="md:col-span-2 flex justify-end">
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
-          >
-            {expanded ? <FiChevronUp /> : <FiChevronDown />}
-            {expanded ? 'Less' : 'More'}
-          </button>
-        </div>
-      </div>
+      )}
 
-      {/* Expanded Content */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -496,88 +494,13 @@ const CampaignListItem = ({ campaign }) => {
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 pt-2 border-t border-slate-100 dark:border-slate-700">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Requirements</p>
-                  <p className="text-sm text-slate-800 dark:text-white">{campaign.requirements}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Tracking Method</p>
-                  <p className="text-sm text-slate-800 dark:text-white">{campaign.tracking}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Target URL</p>
-                  <a 
-                    href={campaign.targetUrl} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                  >
-                    {campaign.targetUrl}
-                  </a>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Campaign Type</p>
-                  <p className="text-sm text-slate-800 dark:text-white">{campaign.type}</p>
-                </div>
-              </div>
-
-              {referralLink ? (
-                <div className="bg-slate-50 dark:bg-slate-700/30 p-3 rounded-lg mb-3">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Your referral link</p>
-                  <div className="flex items-center gap-2">
-                    <a 
-                      href={referralLink} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline flex-1 break-all"
-                    >
-                      {referralLink}
-                    </a>
-                    <button
-                      onClick={copyToClipboard}
-                      className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600"
-                      title="Copy to clipboard"
-                    >
-                      <FiCopy className="text-slate-600 dark:text-slate-300" />
-                    </button>
-                  </div>
-                  {copied && (
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">Copied to clipboard!</p>
-                  )}
-                </div>
-              ) : null}
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  onClick={() => {
-                    const link = generateReferralLink();
-                    copyToClipboard();
-                  }}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
-                >
-                  <FiLink />
-                  {referralLink ? 'Copy Referral Link' : 'Get Referral Link'}
-                </button>
-                <button
-                  onClick={() => setExpanded(false)}
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white py-2 px-4 rounded-lg transition text-sm font-medium"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+            <ExpandedContent />
           </motion.div>
         )}
       </AnimatePresence>
     </motion.div>
   );
 };
-
-
-
-
 
 
 

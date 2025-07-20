@@ -238,7 +238,7 @@ const handleDeleteAccount = async () => {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
               Add an extra layer of security to your account
             </p>
-            <button className="px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
+            <button title="Currently not available" disabled className="px-4 py-2 disabled:cursor-not-allowed disabled:bg-slate-500 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition">
               Enable 2FA
             </button>
           </div>

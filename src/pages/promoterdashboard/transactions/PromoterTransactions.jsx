@@ -19,7 +19,7 @@ export default function PromoterTransactions() {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(5);
+  const [itemsPerPage] = useState(10);
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
@@ -39,19 +39,11 @@ export default function PromoterTransactions() {
       status: "completed",
       timestamp: "2025-06-12T09:15:00Z",
     },
-
     {
       type: "deposit",
       amount: 1200,
-      status: "pending",
-      timestamp: "2025-06-05T11:20:00Z",
-    },
-    {
-      type: "sent",
-      amount: 50,
       status: "completed",
-      timestamp: "2025-05-28T16:10:00Z",
-      to: "0x6d3f...e29a",
+      timestamp: "2025-06-05T11:20:00Z",
     },
     {
       type: "deposit",
@@ -71,12 +63,10 @@ export default function PromoterTransactions() {
     { id: "all", label: "All" },
     { id: "deposit", label: "Deposits" },
     { id: "withdrawal", label: "Withdrawals" },
-    { id: "sent", label: "Transfers" }
   ];
 
   const statuses = {
     completed: { color: "bg-green-500", text: "Completed" },
-    pending: { color: "bg-yellow-500", text: "Pending" },
     failed: { color: "bg-red-500", text: "Failed" }
   };
 
@@ -134,7 +124,6 @@ export default function PromoterTransactions() {
       case "deposit":
         return <FiArrowDownLeft className="text-green-500" />;
       case "withdrawal":
-      case "sent":
         return <RiExchangeLine className="text-blue-500" />;
       default:
         return <FiArrowUpRight />;
@@ -146,11 +135,11 @@ export default function PromoterTransactions() {
   };
 
   return (
-    <div className="space-y-6 h-[74vh] overflow-auto">
+    <div className="space-y-6 h-[74vh] overflow-y-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h2 className="text-xl font-bold">Transaction History</h2>
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-slate-500 text-sm dark:text-slate-400">
             Showing {filteredTransactions.length} transactions
             {dateRange[0] && dateRange[1] && (
               <span className="ml-2">
@@ -160,7 +149,7 @@ export default function PromoterTransactions() {
           </p>
         </div>
         
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <div className="relative flex-1">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
             <input
@@ -226,7 +215,7 @@ export default function PromoterTransactions() {
         </div>
       </div>
 
-      <div className="flex overflow-x-auto pb-2">
+      <div className="flex pb-2">
         <div className="flex gap-2">
           {filters.map((filter) => (
             <button
@@ -271,19 +260,6 @@ export default function PromoterTransactions() {
               </div>
               <div>
                 <div className="font-medium capitalize">{tx.type}</div>
-                <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                  <span className="truncate max-w-[80px] md:max-w-[120px]">{tx.type === 'sent' ? `to: ${tx.to}` : ''}</span>
-                  <button 
-                    onClick={() => copyToClipboard(tx.to)}
-                    className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition"
-                    title="Copy TX ID"
-                  >
-                    {tx.type === 'sent' ? <FiCopy size={14} /> : ''}
-                  </button>
-                </div>
-                {copiedId === tx.to && (
-                  <span className="text-xs text-green-500">Copied!</span>
-                )}
               </div>
             </div>
 
@@ -291,9 +267,9 @@ export default function PromoterTransactions() {
             <div className="col-span-3 hidden md:block">
               <div className={`font-medium ${
                 tx.type === "deposit" ? "text-green-600 dark:text-green-400" : 
-                ["withdrawal", "sent"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
+                ["withdrawal"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
               }`}>
-                {tx.type === "deposit" ? "+" : ["withdrawal", "sent"].includes(tx.type) ? "-" : ""}
+                {tx.type === "deposit" ? "+" : ["withdrawal"].includes(tx.type) ? "-" : ""}
                 {tx.amount} NG
               </div>
             </div>
@@ -315,9 +291,9 @@ export default function PromoterTransactions() {
               <div className="md:hidden flex items-center justify-between mt-1">
                 <div className={`text-sm font-medium ${
                   tx.type === "deposit" ? "text-green-600 dark:text-green-400" : 
-                  ["withdrawal", "sent"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
+                  ["withdrawal"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
                 }`}>
-                  {tx.type === "deposit" ? "+" : ["withdrawal", "sent"].includes(tx.type) ? "-" : ""}
+                  {tx.type === "deposit" ? "+" : ["withdrawal"].includes(tx.type) ? "-" : ""}
                   {tx.amount} NG
                 </div>
                 <div className="flex items-center gap-2">

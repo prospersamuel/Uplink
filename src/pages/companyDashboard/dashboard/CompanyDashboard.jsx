@@ -44,7 +44,7 @@ export default function CompanyDashboard() {
   const [username, setUsername] = useState(null);
   const [user, setUser] = useState(null);
   const [expandedSections, setExpandedSections] = useState({
-    analytics: true,
+    analytics: false,
     management: false,
     settings: false,
     wallet: false,
@@ -243,7 +243,7 @@ const toggleSection = (section) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4 md:p-6 min-h-[400px] md:h-[80vh] h-[75vh] overflow-auto w-full"
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4 md:p-6 min-h-fit overflow-auto w-full"
         >
           {loading ? (
             <div className="flex items-center justify-center h-full">

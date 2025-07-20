@@ -1,22 +1,10 @@
-// Import the functions you need from the SDKs you need
+// services/firebase.js
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore,  
-  collection, 
-  query, 
-  where, 
-  getDocs,
-  doc,
-  getDoc,
-  onSnapshot } from "firebase/firestore";
-  import { getFunctions } from "firebase/functions";
-  // services/firebase.js
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFunctions } from "firebase/functions";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-
+// Firebase config (from your .env)
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -24,10 +12,18 @@ const firebaseConfig = {
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID,
 };
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
+
+// Services
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const functions = getFunctions(app);
+
+// Enable offline persistence
+enableIndexedDbPersistence(db).catch((err) => {
+  console.warn("⚠ Firestore persistence error:", err.code);
+});

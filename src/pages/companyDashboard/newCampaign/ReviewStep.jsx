@@ -73,16 +73,6 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
                     ? `to ${campaignData.endDate}`
                     : "(No end date)"}
                 </p>
-                <p>
-                  <span className="text-slate-500">Visibility:</span>{" "}
-                  {campaignData.visibility === "public" ? "Public" : "Private"}
-                </p>
-                <p>
-                  <span className="text-slate-500">Approval:</span>{" "}
-                  {campaignData.approvalType === "auto"
-                    ? "Automatic"
-                    : "Manual"}
-                </p>
               </div>
             </div>
 
@@ -95,7 +85,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
                   type="text"
                   value={campaignData.targetUrl}
                   readOnly
-                  className="flex-1 px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate"
+                  className="flex-1 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate"
                 />
                 <button
                   type="button"

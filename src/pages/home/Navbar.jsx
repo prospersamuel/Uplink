@@ -104,7 +104,7 @@ export default function Navbar() {
           >
             <button
               onClick={toggleTheme}
-              className="ml-4 p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-slate-700 transition"
+              className="ml-4 p-2 animate-slide-in-right rounded-full hover:bg-neutral-200 dark:hover:bg-slate-700 transition"
               aria-label="Toggle theme"
             >
               {theme === "dark" ? <FaSun size={18} /> : <FaMoon size={18} />}
@@ -120,7 +120,7 @@ export default function Navbar() {
                 href={link.path}
                 key={i}
                 onClick={() => setMenuOpen(false)}
-                className="block text-3xl font-semibold transition text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-700"
+                className="block text-3xl animate-slide-in-right transition text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-700"
               >
                 {link.label}
               </a>
@@ -133,7 +133,7 @@ export default function Navbar() {
               }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
+              className="flex items-center gap-2 animate-slide-in-right bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
             >
               Login <FiLogIn size={14} />
             </motion.button>

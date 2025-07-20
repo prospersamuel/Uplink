@@ -6,7 +6,6 @@ import {
   FiHome,
   FiSettings,
   FiCreditCard,
-  FiPieChart,
   FiZap,
   FiMenu,
   FiX,
@@ -29,6 +28,8 @@ import PromoterDashboardOverview from "./PromoterDashboardOverview";
 import PromoterHeader from "./PromoterHeader";
 import PromoterCampaigns from "../promoterCampaigns/PromoterCampaigns";
 import { BrowseCampaigns } from "../browseCampaigns/BrowseCampaigns";
+import { MdCampaign } from "react-icons/md";
+import EarningsAndPayouts from "../earningsandpayouts/EarningsAndPayouts";
 
 export default function PromoterDashboard() {
   const navigate = useNavigate();
@@ -89,14 +90,39 @@ export default function PromoterDashboard() {
     },
     {
       section: "analytics",
-      title: "Analytics",
-      icon: <FiPieChart />,
+      title: "Campaigns",
+      icon: <MdCampaign />,
       items: [
         {
           id: "Browse Campaigns",
           title: "BrowseCampaigns",
-          icon: <FiCreditCard />,
+          icon: <MdCampaign />,
           component: <BrowseCampaigns />,
+        },
+        {
+          id: "campaigns",
+          title: "My Campaigns",
+          icon: <MdCampaign />,
+          component: <PromoterCampaigns />,
+        },
+      ],
+    },
+    {
+      section: "management",
+      title: "Management",
+      icon: <FiSettings />,
+      items: [
+        {
+          id: "earnings and payouts",
+          title: "Earnings and Payouts",
+          icon: <FiZap />,
+          component: <EarningsAndPayouts />,
+        },
+        {
+          id: "referrals and conversions",
+          title: "Referrals and Conversions",
+          icon: <FiZap />,
+          component: <EarningsAndPayouts />,
         },
       ],
     },
@@ -116,19 +142,6 @@ export default function PromoterDashboard() {
           title: "Transactions",
           icon: <FiCreditCard />,
           component: <Transactions />,
-        },
-      ],
-    },
-    {
-      section: "management",
-      title: "Management",
-      icon: <FiSettings />,
-      items: [
-        {
-          id: "campaigns",
-          title: "Campaigns",
-          icon: <FiZap />,
-          component: <PromoterCampaigns />,
         },
       ],
     },
@@ -230,7 +243,7 @@ const toggleSection = (section) => {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4 md:p-6 min-h-[400px] md:h-[80vh] h-[75vh] overflow-auto w-full"
+          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4 md:p-6 min-h-[400px]  w-full"
         >
           {loading ? (
             <div className="flex items-center justify-center h-full">

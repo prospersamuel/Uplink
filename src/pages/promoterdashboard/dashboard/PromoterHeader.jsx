@@ -34,17 +34,6 @@ export default function PromoterHeader({ activeTab, navItems, theme, toggleTheme
         </p>
       </div>
       <div className="flex flex-col-reverse md:flex-row items-end gap-3 md:w-auto">
-        {activeTab !== "profile" &&
-          activeTab !== "security" && (
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-            //   onClick={() => setIsModalOpen(true)}
-              className="flex items-center px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium shadow-lg hover:shadow-blue-500/20 transition-all whitespace-nowrap"
-            >
-              New Campaign <FiArrowUpRight />
-            </motion.button>
-          )}
           <div className="flex w-full items-center justify-end">
         <button
           onClick={toggleTheme}
