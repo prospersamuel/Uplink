@@ -4,7 +4,6 @@ import {
   FiArrowUpRight, 
   FiArrowDownLeft, 
   FiSearch,
-  FiCopy,
   FiCalendar,
   FiChevronLeft,
   FiChevronRight,
@@ -13,49 +12,53 @@ import {
 import { RiExchangeLine } from "react-icons/ri";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { MdCampaign } from "react-icons/md";
 
 export default function CompanyTransactions() {
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [copiedId, setCopiedId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
-
-  // Sample transaction data
+  // Sample transaction data with campaign types
   const transactions = [
     {
+      id: 1,
       type: "deposit",
       amount: 5000,
       status: "completed",
-      timestamp: "2025-06-15T14:32:00Z",
+      timestamp: Date.now(),
     },
     {
+      id: 2,
       type: "withdrawal",
       amount: 250,
       status: "completed",
-      timestamp: "2025-06-12T09:15:00Z",
+      timestamp: Date.now(),
     },
     {
-      type: "deposit",
-      amount: 1200,
-      status: "completed",
-      timestamp: "2025-06-05T11:20:00Z",
-    },
-    {
-      type: "deposit",
-      amount: 0.75,
-      status: "failed",
-      timestamp: "2025-05-20T10:30:00Z",
-    },
-    {
-      type: "withdrawal",
+      id: 3,
+      type: "campaign_created",
       amount: 100,
       status: "completed",
-      timestamp: "2025-05-15T14:45:00Z",
+      timestamp: Date.now(),
+    },
+    {
+      id: 4,
+      type: "campaign_deleted",
+      amount: 50,
+      status: "completed",
+      timestamp: Date.now() - 86400000, // yesterday
+    },
+    {
+      id: 5,
+      type: "campaign_created",
+      amount: 200,
+      status: "failed",
+      timestamp: Date.now() - 172800000, // 2 days ago
     },
   ];
 
@@ -63,6 +66,7 @@ export default function CompanyTransactions() {
     { id: "all", label: "All" },
     { id: "deposit", label: "Deposits" },
     { id: "withdrawal", label: "Withdrawals" },
+    { id: "campaigns", label: "Campaigns" },
   ];
 
   const statuses = {
@@ -70,15 +74,16 @@ export default function CompanyTransactions() {
     failed: { color: "bg-red-500", text: "Failed" }
   };
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text);
-    setCopiedId(text);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   const filteredTransactions = transactions.filter(tx => {
-    // Filter by type
-    const matchesFilter = activeFilter === "all" || tx.type === activeFilter;
+    // Filter by type - handle campaign cases
+    let matchesFilter = false;
+    if (activeFilter === "all") {
+      matchesFilter = true;
+    } else if (activeFilter === "campaigns") {
+      matchesFilter = tx.type.includes("campaign");
+    } else {
+      matchesFilter = tx.type === activeFilter;
+    }
     
     // Filter by search query
     const matchesSearch = searchQuery === "" || 
@@ -125,8 +130,23 @@ export default function CompanyTransactions() {
         return <FiArrowDownLeft className="text-green-500" />;
       case "withdrawal":
         return <RiExchangeLine className="text-blue-500" />;
+      case "campaign_created":
+        return <MdCampaign className="text-green-500" />;
+      case "campaign_deleted":
+        return <MdCampaign className="text-red-500" />;
       default:
         return <FiArrowUpRight />;
+    }
+  };
+
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case "campaign_created":
+        return "Campaign Created";
+      case "campaign_deleted":
+        return "Campaign Deleted";
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1);
     }
   };
 
@@ -135,10 +155,10 @@ export default function CompanyTransactions() {
   };
 
   return (
-    <div className="space-y-6 h-[74vh] overflow-y-auto">
+    <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-bold">Transaction History</h2>
+          <h2 className="text-xl font-bold truncate">Transaction History</h2>
           <p className="text-slate-500 text-sm dark:text-slate-400">
             Showing {filteredTransactions.length} transactions
             {dateRange[0] && dateRange[1] && (
@@ -215,13 +235,13 @@ export default function CompanyTransactions() {
         </div>
       </div>
 
-      <div className="flex pb-2">
-        <div className="flex gap-2">
+      <div className="flex  overflow-auto pb-2">
+        <div className="flex gap-1 md:gap-2">
           {filters.map((filter) => (
             <button
               key={filter.id}
               onClick={() => setActiveFilter(filter.id)}
-              className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition ${
+              className={`px-2 py-1 md:px-4 md:py-1 rounded-full text-xs md:text-sm font-medium whitespace-nowrap transition ${
                 activeFilter === filter.id
                   ? "bg-blue-600 text-white"
                   : "bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600"
@@ -234,203 +254,189 @@ export default function CompanyTransactions() {
       </div>
 
       <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
-  <div className="min-w-[600px]">
-    {/* Table Headers */}
-    <div className="grid grid-cols-12 px-2 md:px-6 py-3 bg-slate-50 dark:bg-slate-700/30 border-b border-slate-200 dark:border-slate-700 text-sm font-medium text-slate-500 dark:text-slate-400">
-      <div className="col-span-6 md:col-span-4">Transaction</div>
-      <div className="col-span-3 hidden md:block">Amount</div>
-      <div className="col-span-3 hidden md:block">Status</div>
-      <div className="col-span-3 md:col-span-2">Time</div>
-    </div>
-
-    <AnimatePresence>
-      {currentItems.length > 0 ? (
-        currentItems.map((tx) => (
-          <motion.div
-            key={tx.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="grid grid-cols-12 px-2 md:px-6 py-4 border-b border-slate-100 dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
-          >
-            {/* Transaction Column - Expanded on mobile */}
-            <div className="col-span-6 md:col-span-4 flex items-center gap-3">
-              <div className="p-2 rounded-full bg-slate-100 dark:bg-slate-700">
-                {getTypeIcon(tx.type)}
-              </div>
-              <div>
-                <div className="font-medium capitalize">{tx.type}</div>
-              </div>
-            </div>
-
-            {/* Amount Column - Hidden on mobile, shown on md+ */}
-            <div className="col-span-3 hidden md:block">
-              <div className={`font-medium ${
-                tx.type === "deposit" ? "text-green-600 dark:text-green-400" : 
-                ["withdrawal"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
-              }`}>
-                {tx.type === "deposit" ? "+" : ["withdrawal"].includes(tx.type) ? "-" : ""}
-                {tx.amount} NG
-              </div>
-            </div>
-
-            {/* Status Column - Hidden on mobile, shown on md+ */}
-            <div className="col-span-3 hidden md:flex items-center">
-              <div className="flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${statuses[tx.status]?.color || "bg-gray-500"}`}></span>
-                <span>{statuses[tx.status]?.text || tx.status}</span>
-              </div>
-            </div>
-
-            {/* Time Column - Expanded on mobile to show more info */}
-            <div className="col-span-6 md:col-span-2 flex flex-col md:block mt-2 md:mt-0">
-              <div className="text-sm text-slate-500 dark:text-slate-400">
-                {formatDate(tx.timestamp)}
-              </div>
-              {/* Mobile-only amount and status */}
-              <div className="md:hidden flex items-center justify-between mt-1">
-                <div className={`text-sm font-medium ${
-                  tx.type === "deposit" ? "text-green-600 dark:text-green-400" : 
-                  ["withdrawal"].includes(tx.type) ? "text-red-600 dark:text-red-400" : ""
-                }`}>
-                  {tx.type === "deposit" ? "+" : ["withdrawal"].includes(tx.type) ? "-" : ""}
-                  {tx.amount} NG
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`w-2 h-2 rounded-full ${statuses[tx.status]?.color || "bg-gray-500"}`}></span>
-                  <span className="text-xs">{statuses[tx.status]?.text || tx.status}</span>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))
-      ) : (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="p-8 text-center"
-        >
-          <div className="text-slate-400 dark:text-slate-500">
-            No transactions found matching your criteria
+        <div className="min-w-[600px]">
+          {/* Table Headers */}
+          <div className="grid grid-cols-12 px-2 md:px-6 py-3 bg-slate-50 dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400">
+            <div className="col-span-4">Transaction</div>
+            <div className="col-span-2">Amount</div>
+            <div className="col-span-3">Status</div>
+            <div className="col-span-3">Time</div>
           </div>
-          <button 
-            onClick={() => {
-              setActiveFilter("all");
-              setSearchQuery("");
-              setDateRange([null, null]);
-            }}
-            className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
-          >
-            Clear all filters
-          </button>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  </div>
-</div>
+
+          <AnimatePresence>
+            {currentItems.length > 0 ? (
+              currentItems.map((tx) => (
+                <motion.div
+                  key={tx.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="grid grid-cols-12 *:text-xs px-2 md:px-6 py-4 border-b border-slate-100 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
+                >
+                  {/* Transaction Column - Expanded on mobile */}
+                  <div className="col-span-4 flex items-center gap-3">
+                    <div className="p-2 rounded-full bg-slate-100 dark:bg-slate-700">
+                      {getTypeIcon(tx.type)}
+                    </div>
+                    <div>
+                      <div className="font-medium">{getTypeLabel(tx.type)}</div>
+                    </div>
+                  </div>
+
+                  <div className="col-span-2">
+                    <div className={`font-medium ${
+                      tx.type === "deposit" || tx.type === "campaign_created" 
+                        ? "text-green-600 dark:text-green-400" 
+                        : ["withdrawal", "campaign_deleted"].includes(tx.type) 
+                          ? "text-red-600 dark:text-red-400" 
+                          : ""
+                    }`}>
+                      {tx.type === "deposit" || tx.type === "campaign_created" ? "+" : "-"}
+                      {tx.amount} NG
+                    </div>
+                  </div>
+
+                  <div className="col-span-3 items-center">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${statuses[tx.status]?.color || "bg-gray-500"}`}></span>
+                      <span>{statuses[tx.status]?.text || tx.status}</span>
+                    </div>
+                  </div>
+
+                  <div className="col-span-3 flex flex-col">
+                    <div className="text-xs text-slate-500 dark:text-slate-400">
+                      {formatDate(tx.timestamp)}
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="p-8 text-center"
+              >
+                <div className="text-slate-400 dark:text-slate-500">
+                  No transactions found matching your criteria
+                </div>
+                <button 
+                  onClick={() => {
+                    setActiveFilter("all");
+                    setSearchQuery("");
+                    setDateRange([null, null]);
+                  }}
+                  className="mt-4 text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Clear all filters
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
 
       {/* Enhanced Pagination */}
-     {filteredTransactions.length > 0 && (
-  <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-    <div className="text-sm">
-      Showing <span className="font-medium">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredTransactions.length)}</span> of <span className="font-medium">{filteredTransactions.length}</span>
-    </div>
-    
-    <div className="flex items-center gap-1">
-      <button
-        onClick={() => {
-          if (currentPage > 1) paginate(currentPage - 1);
-        }}
-        disabled={currentPage === 1}
-        className={`p-2 rounded border border-slate-200 dark:border-slate-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
-          currentPage === 1 ? "" : "hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-        aria-label="Previous page"
-      >
-        <FiChevronLeft size={16} />
-      </button>
-      
-      {/* Always show first page */}
-      <button
-        onClick={() => paginate(1)}
-        className={`w-10 h-10 rounded flex items-center justify-center text-sm ${
-          currentPage === 1
-            ? "bg-blue-600 text-white"
-            : "border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-      >
-        1
-      </button>
-      
-      {/* Show ellipsis if needed */}
-      {currentPage > 3 && totalPages > 4 && (
-        <span className="px-1">...</span>
-      )}
-      
-      {/* Show current page and adjacent pages */}
-      {Array.from({ length: Math.min(3, totalPages - 2) }).map((_, i) => {
-        let pageNum;
-        if (currentPage <= 2) {
-          pageNum = i + 2;
-        } else if (currentPage >= totalPages - 1) {
-          pageNum = totalPages - 2 + i;
-        } else {
-          pageNum = currentPage - 1 + i;
-        }
-        
-        // Don't show pages outside our range
-        if (pageNum > 1 && pageNum < totalPages) {
-          return (
+      {filteredTransactions.length > 0 && (
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+          <div className="text-sm">
+            Showing <span className="font-medium">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredTransactions.length)}</span> of <span className="font-medium">{filteredTransactions.length}</span>
+          </div>
+          
+          <div className="flex items-center gap-1">
             <button
-              key={pageNum}
-              onClick={() => paginate(pageNum)}
+              onClick={() => {
+                if (currentPage > 1) paginate(currentPage - 1);
+              }}
+              disabled={currentPage === 1}
+              className={`p-2 rounded border border-slate-200 dark:border-slate-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                currentPage === 1 ? "" : "hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+              aria-label="Previous page"
+            >
+              <FiChevronLeft size={16} />
+            </button>
+            
+            {/* Always show first page */}
+            <button
+              onClick={() => paginate(1)}
               className={`w-10 h-10 rounded flex items-center justify-center text-sm ${
-                currentPage === pageNum
+                currentPage === 1
                   ? "bg-blue-600 text-white"
                   : "border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
               }`}
             >
-              {pageNum}
+              1
             </button>
-          );
-        }
-        return null;
-      })}
-      
-      {/* Show ellipsis if needed */}
-      {currentPage < totalPages - 2 && totalPages > 4 && (
-        <span className="px-1">...</span>
+            
+            {/* Show ellipsis if needed */}
+            {currentPage > 3 && totalPages > 4 && (
+              <span className="px-1">...</span>
+            )}
+            
+            {/* Show current page and adjacent pages */}
+            {Array.from({ length: Math.min(3, totalPages - 2) }).map((_, i) => {
+              let pageNum;
+              if (currentPage <= 2) {
+                pageNum = i + 2;
+              } else if (currentPage >= totalPages - 1) {
+                pageNum = totalPages - 2 + i;
+              } else {
+                pageNum = currentPage - 1 + i;
+              }
+              
+              // Don't show pages outside our range
+              if (pageNum > 1 && pageNum < totalPages) {
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => paginate(pageNum)}
+                    className={`w-10 h-10 rounded flex items-center justify-center text-sm ${
+                      currentPage === pageNum
+                        ? "bg-blue-600 text-white"
+                        : "border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              }
+              return null;
+            })}
+            
+            {/* Show ellipsis if needed */}
+            {currentPage < totalPages - 2 && totalPages > 4 && (
+              <span className="px-1">...</span>
+            )}
+            
+            {/* Always show last page if there are multiple pages */}
+            {totalPages > 1 && (
+              <button
+                onClick={() => paginate(totalPages)}
+                className={`w-10 h-10 rounded flex items-center justify-center text-sm ${
+                  currentPage === totalPages
+                    ? "bg-blue-600 text-white"
+                    : "border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                }`}
+              >
+                {totalPages}
+              </button>
+            )}
+            
+            <button
+              onClick={() => {
+                if (currentPage < totalPages) paginate(currentPage + 1);
+              }}
+              disabled={currentPage === totalPages}
+              className={`p-2 rounded border border-slate-200 dark:border-slate-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                currentPage === totalPages ? "" : "hover:bg-slate-100 dark:hover:bg-slate-700"
+              }`}
+              aria-label="Next page"
+            >
+              <FiChevronRight size={16} />
+            </button>
+          </div>
+        </div>
       )}
-      
-      {/* Always show last page if there are multiple pages */}
-      {totalPages > 1 && (
-        <button
-          onClick={() => paginate(totalPages)}
-          className={`w-10 h-10 rounded flex items-center justify-center text-sm ${
-            currentPage === totalPages
-              ? "bg-blue-600 text-white"
-              : "border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-          }`}
-        >
-          {totalPages}
-        </button>
-      )}
-      
-      <button
-        onClick={() => {
-          if (currentPage < totalPages) paginate(currentPage + 1);
-        }}
-        disabled={currentPage === totalPages}
-        className={`p-2 rounded border border-slate-200 dark:border-slate-700 flex items-center disabled:opacity-50 disabled:cursor-not-allowed ${
-          currentPage === totalPages ? "" : "hover:bg-slate-100 dark:hover:bg-slate-700"
-        }`}
-        aria-label="Next page"
-      >
-        <FiChevronRight size={16} />
-      </button>
-    </div>
-  </div>
-)}
     </div>
   );
 }

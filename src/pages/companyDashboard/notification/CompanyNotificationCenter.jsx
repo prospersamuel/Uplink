@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { FiBell, FiCheck, FiX, FiZap } from "react-icons/fi";
+import { FiBell, FiCheck, FiX, FiZap, FiTrash2 } from "react-icons/fi";
 import { useState, useEffect } from "react";
 
 const mockNotifications = [
@@ -12,6 +12,12 @@ const mockNotifications = [
 export default function CompanyNotificationCenter() {
   const [notifications, setNotifications] = useState(mockNotifications);
   const [isOpen, setIsOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    notificationId: null
+  });
 
   const markAsRead = (id) => {
     setNotifications(notifications.map(n => 
@@ -23,22 +29,32 @@ export default function CompanyNotificationCenter() {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
   };
 
-  // Simulate real-time updates
+  const deleteNotification = (id) => {
+    setNotifications(notifications.filter(n => n.id !== id));
+    setContextMenu({ ...contextMenu, visible: false });
+  };
+
+  const handleContextMenu = (e, notificationId) => {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      notificationId
+    });
+  };
+
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7 && isOpen) {
-        const newNotif = {
-          id: Date.now(),
-          type: ['payout', 'referral', 'system'][Math.floor(Math.random() * 3)],
-          message: `New ${Math.random() > 0.5 ? 'referral' : 'activity'} detected`,
-          time: 'Just now',
-          read: false
-        };
-        setNotifications([newNotif, ...notifications]);
+    const handleClickOutside = () => {
+      if (contextMenu.visible) {
+        setContextMenu({ ...contextMenu, visible: false });
       }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [isOpen, notifications]);
+    };
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [contextMenu]);
 
   return (
     <div className="relative">
@@ -59,10 +75,10 @@ export default function CompanyNotificationCenter() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
+            initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ type: 'spring', damping: 25 }}
+            exit={{ opacity: 0, y: -5 }}
+            transition={{ type: 'spring', damping: 10 }}
             className="absolute right-0 mt-2 w-80 bg-white/90 dark:bg-slate-800/95 backdrop-blur-xl rounded-xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden z-50"
           >
             <div className="p-4 border-b border-slate-200/50 dark:border-slate-700/50 flex justify-between items-center">
@@ -94,7 +110,8 @@ export default function CompanyNotificationCenter() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className={`p-4 ${!notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
+                      onContextMenu={(e) => handleContextMenu(e, notification.id)}
+                      className={`p-4 cursor-pointer ${!notification.read ? 'bg-blue-50/50 dark:bg-blue-900/20' : ''}`}
                     >
                       <div className="flex gap-3">
                         <div className={`mt-1 flex-shrink-0 w-2 h-2 rounded-full ${
@@ -125,6 +142,54 @@ export default function CompanyNotificationCenter() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Context menu for delete */}
+      <AnimatePresence>
+        {contextMenu.visible && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            style={{
+              position: 'fixed',
+              top: contextMenu.y,
+              left: contextMenu.x,
+              zIndex: 1000
+            }}
+            className="bg-white dark:bg-slate-700 rounded-md shadow-lg overflow-hidden border border-slate-200 dark:border-slate-600"
+          >
+            <button
+              onClick={() => deleteNotification(contextMenu.notificationId)}
+              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-slate-600 transition-colors"
+            >
+              <FiTrash2 size={14} />
+              Delete
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
+
+// Simulate real-time updates
+// useEffect(() => {
+//   const interval = setInterval(() => {
+//     if (Math.random() > 0.7 && isOpen) {
+//       const newNotif = {
+//         id: Date.now(),
+//         type: ['payout', 'referral', 'system'][Math.floor(Math.random() * 3)],
+//         message: `New ${Math.random() > 0.5 ? 'referral' : 'activity'} detected`,
+//         time: 'Just now',
+//         read: false
+//       };
+//       setNotifications([newNotif, ...notifications]);
+//     }
+//   }, 10000);
+//   return () => clearInterval(interval);
+// }, [isOpen, notifications]);
+
+
+
+

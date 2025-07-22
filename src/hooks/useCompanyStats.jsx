@@ -8,7 +8,7 @@ import { db, auth } from "../services/firebase";
  * Hook to auto-fetch the current user's data.
  * No need to pass UID.
  */
-export default function useCompanyData() {
+export default function useUserData() {
   const [uid, setUid] = useState(auth.currentUser?.uid || null);
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);

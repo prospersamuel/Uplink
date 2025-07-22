@@ -3,16 +3,40 @@ import {
   FiCreditCard,
   FiZap,
 } from "react-icons/fi";
-import { MdCampaign } from "react-icons/md";
+import { MdAttachMoney, MdCampaign } from "react-icons/md";
 import { RiExchangeLine } from "react-icons/ri";
+import useUserData from "../../../hooks/useCompanyStats";
+import { LuMousePointerClick } from "react-icons/lu";
 
 export default function PromoterStartscard() {
+
+    const { data, loading, error } = useUserData();
+  
+    if (error) return <p className="text-red-500">Error: {error}</p>;
+  
+    if (loading || !data) {
+      return (
+        <>
+          {Array.from({ length: 6 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="h-24 bg-slate-200 dark:bg-slate-700 animate-pulse rounded-xl"
+            />
+          ))}
+        </>
+      );
+    }
 
   const Stats = [
     {
       title: "Wallet Balance",
-      value: "₦ " + "0.00",
+      value: "₦" + data.balance.toFixed(2) || "0.00",
       icon: <FiCreditCard />,
+    },
+    {
+      title: "Earnings This Month",
+      value: "₦" + "0.00",
+      icon: <MdAttachMoney />,
     },
     {
       title: "Pending Payouts",
@@ -27,7 +51,7 @@ export default function PromoterStartscard() {
     {
       title: "Total Referred Clicks",
       value: 0,
-      icon: <RiExchangeLine />,
+      icon: <LuMousePointerClick />,
     },
     {
       title: "Total Conversions",

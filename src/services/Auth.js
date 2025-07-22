@@ -91,7 +91,7 @@ export const registerUser = async (
           companyWebsite: companyWebsite || "",
           campaigns: [],
           activeCampaignsCount: 0,
-          totalSpend: 0,
+          totalSpent: 0,
           totalConversions: 0,
         };
 
@@ -153,7 +153,7 @@ export const signInWithGoogle = async (
             companyWebsite: companyWebsite || "",
             campaigns: [],
             activeCampaignsCount: 0,
-            totalSpend: 0,
+            totalSpent: 0,
             totalConversions: 0,
           };
 

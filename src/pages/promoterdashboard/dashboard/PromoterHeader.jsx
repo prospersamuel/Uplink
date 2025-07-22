@@ -10,11 +10,16 @@ export default function PromoterHeader({ activeTab, navItems, theme, toggleTheme
     "Dashboard Overview";
 
   const tabDescription = {
-    referrals: "Track and manage your referral network",
-    traffic: "Analyze growth trends and metrics",
-    payouts: "Manage reward distributions",
-    profile: "Update your account information",
-    security: "Manage account security settings",
+    profile: "Update your account details and personal information.",
+    security: "Manage passwords and account protection settings.",
+    wallet: "View and manage your payment methods and balance.",
+    earningsandpayouts: "Track income and withdrawal options.",
+    referralsandconversions: "Monitor referral links and conversion stats.",
+    mycampaigns: "Access and manage your Joined Campaigns.",
+    browsecampaigns: "Explore and join new Campaigns.",
+    transaction: "View all campaigns and withdrawal history."
+
+
   };
 
   return (

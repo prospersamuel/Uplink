@@ -356,7 +356,7 @@ export default function Login({ onClose }) {
                   onClick={handleSwitch}
                   className="font-semibold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
                 >
-                  Login
+                  Log in
                 </button>
               </>
             )}

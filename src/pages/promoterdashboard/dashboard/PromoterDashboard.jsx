@@ -26,7 +26,7 @@ import { auth } from "../../../services/firebase";
 import PromoterSidebar from "./PromoterSidebar";
 import PromoterDashboardOverview from "./PromoterDashboardOverview";
 import PromoterHeader from "./PromoterHeader";
-import PromoterCampaigns from "../promoterCampaigns/PromoterCampaigns";
+import { PromoterCampaigns } from "../promoterCampaigns/PromoterCampaigns";
 import { BrowseCampaigns } from "../browseCampaigns/BrowseCampaigns";
 import { MdCampaign } from "react-icons/md";
 import EarningsAndPayouts from "../earningsandpayouts/EarningsAndPayouts";
@@ -40,6 +40,7 @@ export default function PromoterDashboard() {
   const [photoURL, setPhotoURL] = useState(null);
   const [username, setUsername] = useState(null);
   const [user, setUser] = useState(null);
+  const [joinedCampaigns, setJoinedCampaigns] = useState([]);
   const [expandedSections, setExpandedSections] = useState({
     analytics: true,
     management: false,
@@ -94,16 +95,23 @@ export default function PromoterDashboard() {
       icon: <MdCampaign />,
       items: [
         {
-          id: "Browse Campaigns",
+          id: "browsecampaigns",
           title: "BrowseCampaigns",
           icon: <MdCampaign />,
-          component: <BrowseCampaigns />,
+          component: <BrowseCampaigns  joinedCampaigns={joinedCampaigns} 
+        setJoinedCampaigns={setJoinedCampaigns}  />,
         },
         {
-          id: "campaigns",
+          id: "mycampaigns",
           title: "My Campaigns",
           icon: <MdCampaign />,
-          component: <PromoterCampaigns />,
+          component: <PromoterCampaigns campaigns={joinedCampaigns} 
+        onLeave={(campaignId) => {
+          const campaignToLeave = joinedCampaigns.find(c => c.id === campaignId);
+          if (!campaignToLeave) return;
+          setJoinedCampaigns(joinedCampaigns.filter(c => c.id !== campaignId));
+          toast.success(`Left ${campaignToLeave.title} campaign`);
+        }} />,
         },
       ],
     },
@@ -113,13 +121,13 @@ export default function PromoterDashboard() {
       icon: <FiSettings />,
       items: [
         {
-          id: "earnings and payouts",
+          id: "earningsandpayouts",
           title: "Earnings and Payouts",
           icon: <FiZap />,
           component: <EarningsAndPayouts />,
         },
         {
-          id: "referrals and conversions",
+          id: "referralsandconversions",
           title: "Referrals and Conversions",
           icon: <FiZap />,
           component: <EarningsAndPayouts />,

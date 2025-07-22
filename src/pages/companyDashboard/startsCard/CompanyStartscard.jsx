@@ -2,16 +2,15 @@ import { motion } from "framer-motion";
 import {
   FiTrendingUp,
   FiTrendingDown,
-  FiUsers,
   FiCreditCard,
   FiZap,
 } from "react-icons/fi";
 import { MdCampaign } from "react-icons/md";
 import { RiExchangeLine } from "react-icons/ri";
-import useCompanyData from "../../../hooks/useCompanyStats";
+import useUserData from "../../../hooks/useCompanyStats";
 
 export default function Statscard() {
-  const { data, loading, error } = useCompanyData();
+  const { data, loading, error } = useUserData();
 
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
@@ -27,16 +26,20 @@ export default function Statscard() {
       </>
     );
   }
+
   const Stats = [
     {
       title: "Wallet Balance",
-      value: "₦ " + data.balance.toFixed(2) ?? "0.00",
+      value: "₦ " + Number(data.balance).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) || "0.00",
       change: "+1",
       icon: <FiCreditCard />,
     },
     {
       title: "Total Spent",
-      value: "₦ " + data.totalSpend.toFixed(2) ?? "0.00",
+      value: "₦ " + data.totalSpent.toFixed(2) || "0.00",
       change: "+12.5%",
       icon: <RiExchangeLine />,
     },
@@ -47,7 +50,7 @@ export default function Statscard() {
       icon: <MdCampaign />,
     },
     {
-      title: "Total Conversions",
+      title: "Total Campaigns Joined",
       value: data.totalConversions ?? 0,
       change: "+18%",
       icon: <FiZap />,
@@ -70,11 +73,11 @@ export default function Statscard() {
             <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-blue-500 to-indigo-600" />
 
             <div className="flex justify-between items-start">
-              <div>
+              <div className="max-w-40">
                 <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-1">
                   {stat.title}
                 </p>
-                <h3 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+                <h3  title={stat.value} className="text-2xl font-bold truncate bg-gradient-to-r from-slate-800 to-slate-600 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
                   {stat.value}
                 </h3>
               </div>

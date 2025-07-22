@@ -105,7 +105,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
             Earnings Estimate
           </h4>
           <p className="text-sm text-blue-600 dark:text-blue-200">
-            Based on your current settings: {calculateEarnings()}
+            Based on your current settings: you will earn {calculateEarnings()}
           </p>
           <p className="text-xs text-blue-500 dark:text-blue-300 mt-1">
             This is just an estimate. Actual earnings may vary based on referral

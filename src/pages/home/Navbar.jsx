@@ -120,7 +120,7 @@ export default function Navbar() {
                 href={link.path}
                 key={i}
                 onClick={() => setMenuOpen(false)}
-                className="block text-3xl animate-slide-in-right transition text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-700"
+                className="block text-3xl animate-slide-in-right font-semibold transition text-neutral-800 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-slate-700"
               >
                 {link.label}
               </a>

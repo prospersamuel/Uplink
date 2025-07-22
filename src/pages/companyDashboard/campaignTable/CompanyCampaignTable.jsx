@@ -12,6 +12,10 @@ import { LuRefreshCcw } from "react-icons/lu";
 import { toast } from "react-hot-toast";
 import useCompanyCampaigns from "../../../hooks/useCompanyCampains";
 import Swal from "sweetalert2";
+import useUserData from "../../../hooks/useCompanyStats";
+import { doc, increment, writeBatch } from "firebase/firestore";
+import { db } from "../../../services/firebase";
+import { getAuth } from "firebase/auth";
 
 const statusOptions = [
   {
@@ -64,9 +68,24 @@ export default function CompanyCampaignTable() {
   const [editingCampaignId, setEditingCampaignId] = useState(null);
   const [editValues, setEditValues] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+      const { data } = useUserData();
+      const auth = getAuth();
+      const user = auth.currentUser;
+      const batch = writeBatch(db);
+       const userRef = doc(db, "users", user.uid);
+  
 
   const toggleExpand = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
+  };
+
+   const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   const startEditing = (campaign) => {
@@ -93,56 +112,96 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
   };
 
   const handleSave = async () => {
-    if (!editValues.name.trim()) {
-      toast.error("Campaign name is required");
+  if (!editValues.name.trim()) {
+    toast.error("Campaign name is required");
     return;
   }
-  
+
+  if (!editValues.referralLink.trim() || !isValidUrl(editValues.referralLink)) {
+    toast.error("Valid target URL is required");
+    return;
+  }
+
+  if (!editValues.budget || editValues.budget < 5000) {
+    toast.error("Minimum campaign budget is ₦5000");
+    return;
+  }
+
+  if (editValues.rewardType === 'custom' && !editValues.customReward.trim()) {
+    toast.error("Please specify your custom reward");
+    return;
+  }
+
+  if (editValues.rewardTrigger === 'task' && !editValues.taskDescription.trim()) {
+    toast.error("Please describe the required task");
+    return;
+  }
+
+  // Get the original campaign to compare budgets
+  const originalCampaign = campaigns.find(c => c.id === editingCampaignId);
+  const budgetDifference = editValues.budget - (originalCampaign?.budget || 0);
+
+  // Check if the difference is positive and user has enough balance
+  if (budgetDifference > 0 && budgetDifference > data.balance) {
+    toast.error(`Insufficient funds! You need ₦${budgetDifference.toFixed(2)} more`);
+    return;
+  }
+
   if (editValues.hasEndDate && !editValues.endDate) {
     toast.error("End date is required when 'Has End Date' is checked");
     return;
   }
+
   setIsSaving(true);
-    try {
-      const updatedData = {
-  ...editValues,
-  duration: {
-    startDate: editValues.startDate,
-    endDate: editValues.endDate,
-  },
-  reward: {
-    type: editValues.rewardType,
-    amount: editValues.rewardType === "custom" ? 0 : editValues.rewardAmount,
-    trigger: editValues.rewardTrigger,
-    ...(editValues.rewardType === "custom" && {
-      customReward: editValues.customReward,
-    }),
-    ...(editValues.rewardTrigger === "task" && {
-      taskDescription: editValues.taskDescription,
-    }),
-  },
-};
+  try {
+    const updatedData = {
+      ...editValues,
+      duration: {
+        startDate: editValues.startDate,
+        endDate: editValues.endDate,
+      },
+      reward: {
+        type: editValues.rewardType,
+        amount: editValues.rewardType === "custom" ? 0 : editValues.rewardAmount,
+        trigger: editValues.rewardTrigger,
+        ...(editValues.rewardType === "custom" && {
+          customReward: editValues.customReward,
+        }),
+        ...(editValues.rewardTrigger === "task" && {
+          taskDescription: editValues.taskDescription,
+        }),
+      },
+    };
 
-// Remove temporary fields
-delete updatedData.rewardType;
-delete updatedData.rewardAmount;
-delete updatedData.rewardTrigger;
-delete updatedData.customReward;
-delete updatedData.taskDescription;
-delete updatedData.startDate;
-delete updatedData.endDate;
+    // Remove temporary fields
+    delete updatedData.rewardType;
+    delete updatedData.rewardAmount;
+    delete updatedData.rewardTrigger;
+    delete updatedData.customReward;
+    delete updatedData.taskDescription;
+    delete updatedData.startDate;
+    delete updatedData.endDate;
 
-      await updateCampaign(editingCampaignId, updatedData);
-      toast.success("Campaign updated successfully!");
-      cancelEditing();
-      refreshCampaigns();
-    } catch (err) {
-      toast.error(`Failed to update campaign: ${err.message}`);
-      console.error(err);
-    }finally{
-      setIsSaving(false);
+    // Only update balance if there's a budget difference
+    if (budgetDifference !== 0) {
+      batch.update(userRef, {
+        balance: increment(-budgetDifference),
+        totalSpent: increment(budgetDifference > 0 ? budgetDifference : 0)
+      });
+      await batch.commit();
     }
-  };
+
+    await updateCampaign(editingCampaignId, updatedData);
+    toast.success("Campaign updated successfully!");
+    cancelEditing();
+    refreshCampaigns();
+  } catch (err) {
+    toast.error(`Failed to update campaign: ${err.message}`);
+    console.error(err);
+  } finally {
+    setIsSaving(false);
+  }
+};
 
   const handleInputChange = (field, value) => {
     setEditValues((prev) => ({
@@ -198,7 +257,7 @@ delete updatedData.endDate;
     <>
   <button
     onClick={refreshCampaigns}
-    className="p-2 absolute right-0 top-0 rounded-full bg-white/10 hover:bg-white/20 transition"
+    className="p-2 absolute right-2 top-2 rounded-full bg-white/10 hover:bg-white/20 transition"
   >
     <LuRefreshCcw />
   </button>
@@ -291,7 +350,7 @@ delete updatedData.endDate;
 
               {/* Clicks - Hidden on mobile */}
               <div className="hidden md:block md:col-span-2 text-center">
-                {campaign.totalClicks ?? 0}
+                {campaign.totalJoined ?? 0}
               </div>
 
               {/* Budget */}
@@ -299,6 +358,7 @@ delete updatedData.endDate;
                 {editingCampaignId === campaign.id ? (
                   <input
                     type="number"
+                    min={5000}
                     value={editValues.budget}
                     onChange={(e) =>
                       handleInputChange("budget", parseFloat(e.target.value))
@@ -445,7 +505,7 @@ delete updatedData.endDate;
                     </div>
 
                     {/* Reward Amount (hidden when type is custom) */}
-                    {editValues.rewardType !== "custom" && (
+                    {editValues.reward?.type === "custom" && (
                       <div className="flex flex-col">
                         <label className="text-slate-500 dark:text-slate-400 text-xs mb-1">
                           Reward Amount
@@ -513,7 +573,7 @@ delete updatedData.endDate;
                           <label className="text-slate-500 dark:text-slate-400 text-xs mb-1">
                             Custom Reward Description
                           </label>
-                          <input
+                          <textarea
                             type="text"
                             value={editValues.customReward}
                             onChange={(e) =>
@@ -521,7 +581,7 @@ delete updatedData.endDate;
                             }
                             className="text-xs md:text-sm p-1 md:p-2 focus:outline-none focus:ring-2 focus:ring-primary bg-white dark:bg-slate-700 rounded border border-slate-200 dark:border-slate-600 flex-1 truncate"
                             placeholder="Describe the custom reward"
-                          />
+                          ></textarea>
                         </div>
                       )}
 
@@ -532,7 +592,7 @@ delete updatedData.endDate;
                           <label className="text-slate-500 dark:text-slate-400 text-xs mb-1">
                             Task Description
                           </label>
-                          <input
+                          <textarea
                             type="text"
                             value={editValues.taskDescription || ""}
                             onChange={(e) =>
@@ -543,7 +603,7 @@ delete updatedData.endDate;
                             }
                             className="bg-white focus:outline-none focus:ring-2 focus:ring-primary dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded px-2 py-1"
                             placeholder="Describe the task to be completed"
-                          />
+                          ></textarea>
                         </div>
                       )}
 
@@ -651,37 +711,57 @@ delete updatedData.endDate;
                               : "Activate Campaign"}
                           </button>
                           <button
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              const result = await Swal.fire({
-                                title: "Delete Campaign?",
-                                text: "This will permanently remove the campaign and its data",
-                                icon: "warning",
-                                showCancelButton: true,
-                                cancelButtonText: "Cancel",
-                                confirmButtonColor: "#ef4444",
-                                cancelButtonColor: "#6b7280",
-                                confirmButtonText: "Yes, delete it",
-                                background: "#1f2937", // Dark background
-                                color: "#f8fafc", // Light text color
-                              });
+  onClick={async (e) => {
+    e.stopPropagation();
+    const result = await Swal.fire({
+      title: "Delete Campaign?",
+      text: "This will permanently remove the campaign and its data",
+      icon: "warning",
+      showCancelButton: true,
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Yes, delete it",
+      background: "#1f2937",
+      color: "#f8fafc",
+    });
 
-                              if (result.isConfirmed) {
-                                try {
-                                  await deleteCampaign(campaign.id);
-                                  toast.success(
-                                    "Campaign deleted successfully"
-                                  );
-                                  refreshCampaigns();
-                                } catch (error) {
-                                  toast.error("Failed to delete campaign");
-                                }
-                              }
-                            }}
-                            className="text-sm bg-white dark:bg-slate-700 border border-red-200 dark:border-red-900 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-500"
-                          >
-                            Delete
-                          </button>
+    if (result.isConfirmed) {
+      const loadingToast = toast.loading("Deleting campaign...");
+      try {
+        // Get the campaign budget before deleting
+        const campaignToDelete = campaigns.find(c => c.id === campaign.id);
+        const refundAmount = campaignToDelete?.budget || 0;
+
+        // Create a batch for atomic operations
+        const deleteBatch = writeBatch(db);
+        
+        // 1. Delete the campaign
+        await deleteCampaign(campaign.id);
+        
+        // 2. Update user balance and total spent (refund)
+        if (refundAmount > 0) {
+          deleteBatch.update(userRef, {
+            balance: increment(refundAmount),
+            totalSpent: increment(-refundAmount)
+          });
+          await deleteBatch.commit();
+        }
+
+        toast.dismiss(loadingToast);
+        toast.success("Campaign deleted successfully. Budget refunded.");
+        refreshCampaigns();
+      } catch (error) {
+        toast.dismiss(loadingToast);
+        toast.error("Failed to delete campaign");
+        console.error(error);
+      }
+    }
+  }}
+  className="text-sm bg-white dark:bg-slate-700 border border-red-200 dark:border-red-900 px-3 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-500"
+>
+  Delete
+</button>
                         </div>
                       )}
                     </div>

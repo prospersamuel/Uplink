@@ -10,7 +10,7 @@ import { ReviewStep } from "./ReviewStep";
 import { RewardSettingsStep } from "./RewardSettingsStep";
 import { BasicInfoStep } from "./BasicInfoStep";
 import { StepNavigation } from "./StepNavigation";
-import useCompanyData from "../../../hooks/useCompanyStats";
+import useUserData from "../../../hooks/useCompanyStats";
 
 export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
   const INITIAL_CAMPAIGN_DATA = {
@@ -26,13 +26,13 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
     endDate: "",
     hasEndDate: false,
     description: "",
-    totalClicks: 0,
+    totalJoined: 0,
     budget: 0
   };
 
   const [currentStep, setCurrentStep] = useState(0);
   const [campaignData, setCampaignData] = useState(INITIAL_CAMPAIGN_DATA);
-  const { data } = useCompanyData();
+  const { data } = useUserData();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -43,28 +43,51 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
     return;
   }
 
-  if (!campaignData.name.trim()) {
-    toast.error("Campaign name is required");
-    setCurrentStep(0);
-    return;
-  }
-  if (!campaignData.targetUrl.trim() || !isValidUrl(campaignData.targetUrl)) {
-    toast.error("Valid target URL is required");
-    setCurrentStep(0);
-    return;
-  }
-  if (!campaignData.budget.trim()) {
-    toast.error("Campaign budget is required");
+  // Basic validations
+if (!campaignData.name.trim()) {
+  toast.error("Campaign name is required");
+  setCurrentStep(0);
+  return;
+}
+
+if (!campaignData.targetUrl.trim() || !isValidUrl(campaignData.targetUrl)) {
+  toast.error("Valid target URL is required");
+  setCurrentStep(0);
+  return;
+}
+
+if (!campaignData.budget || campaignData.budget < 5000) {
+  toast.error("Minimum campaign budget is ₦5000");
+  setCurrentStep(0);
+  return;
+}
+
+if (campaignData.hasEndDate && !campaignData.endDate) {
+    toast.error("End date is required when 'Has End Date' is checked");
     setCurrentStep(0);
     return;
   }
 
-    // Budget validation
-  if (campaignData.budget > data.balance) {
-    toast.error(`Insufficient funds! Your balance is ₦${data.balance.toFixed(2)} but budget is ₦${campaignData.budget}`);
-    setCurrentStep(0)
-    return;
-  }
+// Custom reward validation
+if (campaignData.rewardType === 'custom' && !campaignData.customReward?.trim()) {
+  toast.error("Please specify your custom reward");
+  setCurrentStep(1);
+  return;
+}
+
+// Task validation
+if (campaignData.rewardTrigger === 'task' && !campaignData.taskDescription?.trim()) {
+  toast.error("Please describe the required task");
+  setCurrentStep(1);
+  return;
+}
+
+// Budget validation
+if (campaignData.budget > data.balance) {
+  toast.error(`Insufficient funds! Your balance is ₦${data.balance.toFixed(2)}`);
+  setCurrentStep(0);
+  return;
+}
 
   const auth = getAuth();
   const user = auth.currentUser;
@@ -108,7 +131,7 @@ export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
       createdAt: serverTimestamp(),
       ownerId: user.uid,
       description: campaignData.description,
-      totalClicks: campaignData.totalClicks,
+      totalJoined: campaignData.totalJoined,
       budget: campaignData.budget
     };
     

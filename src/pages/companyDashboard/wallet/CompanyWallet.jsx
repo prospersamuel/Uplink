@@ -8,7 +8,7 @@ import {
 } from "react-icons/fi";
 import {LuRefreshCcw} from "react-icons/lu"
 import CompanyTransactions from "../transactions/CompanyTransactions";
-import useCompanyData from "../../../hooks/useCompanyStats";
+import useUserData from "../../../hooks/useCompanyStats";
 
 export default function CompanyWallet() {
   const [showDeposit, setShowDeposit] = useState(false);
@@ -19,7 +19,7 @@ export default function CompanyWallet() {
     { name: "Withdraw", icon: <FiArrowUpRight /> },
   ];
 
-    const { data, loading, error, refresh } = useCompanyData();
+    const { data, loading, error, refresh } = useUserData();
   if (error) return <p>Error: {error}</p>;
 
   
@@ -31,8 +31,16 @@ export default function CompanyWallet() {
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-lg font-medium">Wallet Balance</h2>
-            <p className="text-3xl font-bold mt-2">{ loading ? <div className="w-8 h-4 bg-gradient-to-r from-blue-500 to-indigo-500animate-pulse"></div> :
-            data.balance.toFixed(2) ?? 0.00 }</p>
+            <p className="text-3xl font-bold mt-2">
+  {loading ? (
+    <div className="w-8 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse"></div>
+  ) : (
+    Number(data.balance).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }) ?? '0.00'
+  )}
+</p>
           </div>
            <button
            onClick={refresh}
