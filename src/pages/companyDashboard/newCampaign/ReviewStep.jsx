@@ -1,4 +1,5 @@
-import {FiCopy} from "react-icons/fi";
+import {FiBarChart2, FiCopy, FiLink, FiPlus} from "react-icons/fi";
+import { VscPreview } from "react-icons/vsc";
 
 export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }) {
   return (
@@ -9,11 +10,12 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
             Campaign Summary
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Basic Info
-              </h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+               <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <FiBarChart2 className="text-blue-500" />
+      Basic Info
+    </h4>
               <div className="space-y-2 text-sm">
                 <p>
                   <span className="text-slate-500">Name:</span>{" "}
@@ -31,10 +33,11 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
               </div>
             </div>
 
-            <div>
-              <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Reward Settings
-              </h4>
+            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+               <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <FiPlus className="text-blue-500" />
+      Reward Settings
+    </h4>
               <div className="space-y-2 text-sm">
                 <p>
                   <span className="text-slate-500">Type:</span>{" "}
@@ -61,10 +64,11 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
               </div>
             </div>
 
-            <div>
-              <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Campaign Rules
-              </h4>
+            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+               <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <VscPreview className="text-blue-500" />
+      Campaign Rules
+    </h4>
               <div className="space-y-2 text-sm">
                 <p>
                   <span className="text-slate-500">Duration:</span>{" "}
@@ -76,10 +80,11 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
               </div>
             </div>
 
-            <div>
-              <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Referral Link
-              </h4>
+            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+               <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
+      <FiLink className="text-blue-500" />
+      Referral Link
+    </h4>
               <div className="flex items-center gap-2">
                 <input
                   type="text"
@@ -100,7 +105,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
           </div>
         </div>
 
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/30 rounded-md border border-blue-100 dark:border-blue-800">
+        <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/30 dark:to-blue-800/30 rounded-xl border border-blue-100 dark:border-blue-800">
           <h4 className="font-medium text-blue-700 dark:text-blue-300 mb-2">
             Earnings Estimate
           </h4>

@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { FiBell, FiCheck, FiX, FiZap, FiTrash2 } from "react-icons/fi";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const mockNotifications = [
   { id: 1, type: 'payout', message: '₦42.50 payout processed to Sam W.', time: '2m ago', read: false },
@@ -18,6 +18,9 @@ export default function CompanyNotificationCenter() {
     y: 0,
     notificationId: null
   });
+
+   const notificationRef = useRef();
+  const bellButtonRef = useRef();
 
   const markAsRead = (id) => {
     setNotifications(notifications.map(n => 
@@ -44,21 +47,33 @@ export default function CompanyNotificationCenter() {
     });
   };
 
+  // Handle click outside for both notification panel and context menu
   useEffect(() => {
-    const handleClickOutside = () => {
-      if (contextMenu.visible) {
+    const handleClickOutside = (e) => {
+      // Close context menu if clicking outside
+      if (contextMenu.visible && 
+          !e.target.closest('.context-menu')) {
         setContextMenu({ ...contextMenu, visible: false });
       }
+      
+      // Close notification panel if clicking outside
+      if (isOpen && 
+          !notificationRef.current?.contains(e.target) && 
+          !bellButtonRef.current?.contains(e.target)) {
+        setIsOpen(false);
+      }
     };
-    document.addEventListener("click", handleClickOutside);
+
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [contextMenu]);
+  }, [isOpen, contextMenu]);
 
   return (
     <div className="relative">
       <button 
+       ref={bellButtonRef}
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition-colors"
       >
@@ -75,6 +90,7 @@ export default function CompanyNotificationCenter() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+          ref={notificationRef}
             initial={{ opacity: 0, y: -5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}

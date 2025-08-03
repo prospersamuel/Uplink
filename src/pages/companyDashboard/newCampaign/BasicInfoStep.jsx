@@ -14,7 +14,7 @@ export const BasicInfoStep = ({ campaignData, setCampaignData }) => {
           onChange={(e) => {
             setCampaignData({ ...campaignData, name: e.target.value });
           }}
-          className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-4 py-3 border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700/50 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all"
           placeholder="e.g. June Giveaway Campaign"
           autoFocus
           required
@@ -87,10 +87,11 @@ export const BasicInfoStep = ({ campaignData, setCampaignData }) => {
         </select>
       </div>
       
-      <div className="p-4 bg-slate-50 dark:bg-slate-700/30 rounded-md">
-        <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-4">
-          Campaign Duration
-        </h4>
+      <div className="p-4 bg-white/50 dark:bg-slate-700/30 rounded-lg border border-slate-100 dark:border-slate-600 backdrop-blur-sm">
+         <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-4 flex items-center gap-2">
+    <LuCalendarDays className="text-blue-500" />
+    Campaign Duration
+  </h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>

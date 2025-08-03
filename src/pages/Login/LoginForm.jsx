@@ -130,7 +130,7 @@ export default function LoginForm({
           </div>
           
           {inputs["Role"] === "company" && (
-            <div className="space-y-5">
+            <div className="grid md:grid-cols-2 md:gap-2 gap-4">
               <FloatingInput 
                 type="text"
                 name="Company Name"
@@ -224,7 +224,7 @@ function FloatingInput({ type, name, value, onChange, error, autoComplete, ...pr
           onFocus={() => setIsFocused(true)}
           onBlur={() => !value && setIsFocused(false)}
           autoComplete={autoComplete}
-          className={`w-full px-4 py-2 dark:text-white rounded-lg bg-white/70 dark:bg-slate-700/70 border ${
+          className={`w-full px-4 py-2 dark:text-white rounded-lg text-sm bg-white/70 dark:bg-slate-700/70 border ${
             error ? "border-red-400" : "border-slate-300/80 dark:border-slate-600/50"
           } focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-transparent transition-all peer`}
           {...props}

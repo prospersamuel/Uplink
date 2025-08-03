@@ -415,7 +415,7 @@ const AvailableCampaignItem = ({ campaign, onJoin }) => {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden mt-2 p-4 bg-slate-900/25 rounded-lg border border-primary"
+                  className="overflow-hidden mt-2 p-4 dark:bg-slate-900/25 bg-neutral-50 rounded-lg border border-primary"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
                     <div>
@@ -452,7 +452,7 @@ const AvailableCampaignItem = ({ campaign, onJoin }) => {
                       <p className="text-sm text-slate-800 dark:text-white">
                         {`${campaign.rewardTrigger}${campaign.rewardTrigger === 'On completing a task' ? ' :' : ''}`}
                       </p>
-                      {campaign.rewardTrigger === 'On completing a task' ? <p className="text-xs -ml-1 p-2 rounded-md bg-slate-700 text-slate-500 dark:text-slate-300">
+                      {campaign.rewardTrigger === 'On completing a task' ? <p className="text-xs -ml-1 p-2 rounded-md dark:bg-slate-700 bg-slate-100 text-slate-500 dark:text-slate-300">
                         {campaign.customRewardTrigger}
                       </p> : ''}
                     </div>

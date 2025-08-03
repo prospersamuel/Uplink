@@ -1,141 +1,163 @@
-// Create a new file Wallet.js
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import {
-  FiArrowUpRight,
-  FiArrowDownLeft,
-  FiX,
-} from "react-icons/fi";
-import {LuRefreshCcw} from "react-icons/lu"
-import CompanyTransactions from "../transactions/CompanyTransactions";
+import { useState, useEffect } from "react";
+import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
+import { db } from "../../../services/firebase";
+import toast from "react-hot-toast";
+import logo from '../../../assets/logo.png';
 import useUserData from "../../../hooks/useCompanyStats";
+import WalletBalanceCard from "./WalletBalanceCard";
+import DepositTab from "./DepositTab";
+import WithdrawTab from "./WithdrawTab";
+import BankTab from "./BankTab";
+import { doc, increment, setDoc, updateDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 export default function CompanyWallet() {
-  const [showDeposit, setShowDeposit] = useState(false);
-  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [activeTab, setActiveTab] = useState("deposit");
+  const [amount, setAmount] = useState(0);
+  const [savedMethods, setSavedMethods] = useState([]);
+  const [selectedMethod, setSelectedMethod] = useState(null);
+  
+  const { data, loading, error, refresh } = useUserData();
+  const MIN_WITHDRAWAL = 5000;
+      const auth = getAuth();
+      const user = auth.currentUser;
 
-  const transactionButtons = [
-    { name: "Deposit", icon: <FiArrowDownLeft /> },
-    { name: "Withdraw", icon: <FiArrowUpRight /> },
-  ];
+  // Load saved methods from localStorage
+  useEffect(() => {
+    const methods = JSON.parse(localStorage.getItem("savedPaymentMethods")) || [];
+    setSavedMethods(methods);
+  }, []);
 
-    const { data, loading, error, refresh } = useUserData();
+  const config = {
+    public_key: `FLWPUBK_TEST-827bc96dd80e6fb642e6ee53f9783b45-X`,
+    tx_ref: `${data?.uid}_${Date.now()}`,
+    amount: parseFloat(amount) || 0,
+    currency: 'NGN',
+    payment_options: 'card,mobilemoney,ussd',
+    customer: {
+      email: data?.email || 'Null',
+      phone_number: data?.phone || 'Null',
+      name: data?.displayName || data?.name,
+    },
+    customizations: {
+      title: 'Deposit to Your Wallet',
+      description: 'Fund your account',
+      logo: logo,
+    },
+  };
+
+ const handleFlutterPayment = useFlutterwave(config);
+
+const initiateFlutterPayment = () => {
+  handleFlutterPayment({
+    callback: async (response) => {
+      toast.success("Payment verified and balance updated!");
+      refresh()
+      closePaymentModal(); // Always close the modal
+    },
+    onClose: () => {
+      toast("Transaction was cancelled.");
+    },
+  });
+};
+
+
+  const savePaymentMethod = (methodDetails) => {
+    const method = {
+      type: "bank",
+      name: `${methodDetails.bankName} - ${methodDetails.accountName}`,
+      details: `Account: ${methodDetails.accountNumber}`,
+      fullDetails: { ...methodDetails }
+    };
+    
+    const updatedMethods = [...savedMethods, method];
+    setSavedMethods(updatedMethods);
+    localStorage.setItem("savedPaymentMethods", JSON.stringify(updatedMethods));
+    setAmount("");
+    setActiveTab("withdraw");
+    toast.success("Bank account added successfully");
+  };
+
+  const removePaymentMethod = (index) => {
+    const updatedMethods = savedMethods.filter((_, i) => i !== index);
+    setSavedMethods(updatedMethods);
+    localStorage.setItem("savedPaymentMethods", JSON.stringify(updatedMethods));
+    if (selectedMethod === index) setSelectedMethod(null);
+    toast.success("Payment method removed");
+  };
+
   if (error) return <p>Error: {error}</p>;
 
-  
-
-
   return (
-    <div className="space-y-6">
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-6 text-white">
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-lg font-medium">Wallet Balance</h2>
-            <p className="text-3xl font-bold mt-2">
-  {loading ? (
-    <div className="w-8 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 animate-pulse"></div>
-  ) : (
-    Number(data.balance).toLocaleString(undefined, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2
-    }) ?? '0.00'
-  )}
-</p>
-          </div>
-           <button
-           onClick={refresh}
-            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition"
-          >
-            <LuRefreshCcw />
-          </button>
-        </div>
+    <div className="space-y-6 relative">
+      <WalletBalanceCard
+        balance={data?.balance}
+        loading={loading}
+        refresh={refresh}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+      />
 
-        <div className="gap-3 md:flex grid grid-cols-2 mt-6">
-          {transactionButtons.map((button, i) => (
-            <button
-              key={i}
-              onClick={() => {
-                if (button.name === "Deposit") {
-                  setShowDeposit(true);
-                } else{
-                  setShowWithdraw(true);
-                }
-              }}
-              className="md:flex-1 flex items-center justify-center gap-2 bg-white/10 py-1.5 px-2 hover:bg-white/20 md:py-3 md:px-4 rounded-lg transition"
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden">
+        <AnimatePresence mode="wait">
+          {activeTab === "deposit" && (
+            <motion.div
+              key="deposit"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
             >
-              {button.icon} {button.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <AnimatePresence mode="wait">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.2 }}
-        >
-          <CompanyTransactions />
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Modals */}
-      <AnimatePresence>
-        {showDeposit && (
-          <WalletModal title="Deposit" onClose={() => setShowDeposit(false)}>
-            {/* Deposit form content */}
-          </WalletModal>
-        )}
-        {showWithdraw && (
-          <WalletModal title="Withdraw" onClose={() => setShowWithdraw(false)}>
-            {/* Withdraw form content */}
-          </WalletModal>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-function WalletModal({ title, onClose, children }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-    >
-      <motion.div
-        initial={{ scale: 0.95, y: 20 }}
-        animate={{ scale: 1, y: 0 }}
-        exit={{ scale: 0.95, y: 20 }}
-        className="bg-white dark:bg-slate-800 rounded-xl shadow-xl w-full max-w-md p-6"
-      >
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-xl font-bold">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded-full text-2xl hover:bg-slate-100 dark:hover:bg-slate-700"
-          >
-            <FiX />
-          </button>
-        </div>
-        {children || (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">Amount</label>
-              <input
-                type="number"
-                className="w-full p-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent"
-                placeholder="0.00"
+              <DepositTab
+                amount={amount}
+                setAmount={setAmount}
+                handleFlutterPayment={initiateFlutterPayment}
               />
-            </div>
-            <button className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition">
-              Confirm {title}
-            </button>
-          </div>
-        )}
-      </motion.div>
-    </motion.div>
+            </motion.div>
+          )}
+
+          {activeTab === "withdraw" && (
+            <motion.div
+              key="withdraw"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <WithdrawTab
+                amount={amount}
+                setAmount={setAmount}
+                balance={data?.balance}
+                savedMethods={savedMethods}
+                selectedMethod={selectedMethod}
+                setSelectedMethod={setSelectedMethod}
+                setActiveTab={setActiveTab}
+                removePaymentMethod={removePaymentMethod}
+                MIN_WITHDRAWAL={MIN_WITHDRAWAL}
+                data={data}
+              />
+            </motion.div>
+          )}
+
+          {activeTab === "banks" && (
+            <motion.div
+              key="banks"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <BankTab
+                savedMethods={savedMethods}
+                removePaymentMethod={removePaymentMethod}
+                setActiveTab={setActiveTab}
+                onSaveBankAccount={savePaymentMethod}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
   );
 }

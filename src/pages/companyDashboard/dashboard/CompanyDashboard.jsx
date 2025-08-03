@@ -221,6 +221,8 @@ const toggleSection = (section) => {
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           handleTabClick={handleTabClick}
+            isMobile={isMobile}
+            onClose={() => setSidebarOpen(false)}
         />
       </AnimatePresence>
 

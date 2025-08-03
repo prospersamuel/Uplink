@@ -6,6 +6,7 @@ import {
   FiLogOut,
 } from "react-icons/fi";
 import { handleLogout } from "../../../services/Auth";
+import { useEffect, useRef } from "react";
 
 export default function CompanySidebar({
   photoURL,
@@ -17,11 +18,31 @@ export default function CompanySidebar({
   activeTab,
   setActiveTab,
   handleTabClick, 
+  isMobile,
+  onClose 
 }) {
+
+    const sidebarRef = useRef();
+
+  useEffect(() => {
+    if (!sidebarOpen || !isMobile) return;
+
+    const handleClickOutside = (event) => {
+      if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        onClose();
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [sidebarOpen, isMobile, onClose]);
+
+
   return (
     <AnimatePresence>
       {sidebarOpen && (
         <motion.aside
+        ref={sidebarRef}
           initial={{ x: -300, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           exit={{ x: -300, opacity: 0 }}

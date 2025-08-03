@@ -84,22 +84,34 @@ export default function Login({ onClose }) {
 };
 
   const handleGoogleAuth = async () => {
+    const newErrors = {};
     try {
       setGoogleLoading(true);
 
       let roleIfNew = null;
-      if (mode === "signup") {
-        if (!inputs["Role"]) {
-          showAlert({
-            type: "warning",
-            title: "Select Role",
-            message:
-              "Please choose what you are signing up as before continuing.",
-          });
-          return;
-        }
-        roleIfNew = inputs["Role"];
+if (mode === "signup" && !inputs["Role"]) {
+      newErrors["Role"] = "Please select a role.";
+    }
+
+    if (mode === "signup" && inputs["Role"] === "company") {
+      if (!inputs["Company Name"]) {
+        newErrors["Company Name"] = "Company name is required";
       }
+      if (!inputs["Company Website"]) {
+        newErrors["Company Website"] = "Company website is required";
+      }
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      showAlert({
+        type: "warning",
+        title: "Fix Errors",
+        message: "Please correct the errors before continuing.",
+      });
+      setLoading(false);
+      return;
+    }
 
       await signInWithGoogle(
         roleIfNew,

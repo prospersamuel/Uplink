@@ -9,8 +9,10 @@ import {
   FiChevronUp,
   FiExternalLink,
   FiClock,
+  FiTwitter,
 } from "react-icons/fi";
-import { MdCampaign } from "react-icons/md";
+import { MdCampaign, MdWhatsapp, MdQrCode2 } from "react-icons/md";
+import { QRCodeSVG } from "qrcode.react"; // Changed import
 
 export const PromoterCampaigns = ({ campaigns, onLeave }) => {
   return (
@@ -41,6 +43,7 @@ export const PromoterCampaigns = ({ campaigns, onLeave }) => {
 const PromoterCampaignItem = ({ campaign, onLeave }) => {
   const [expanded, setExpanded] = useState(false);
   const [referralLink, setReferralLink] = useState("");
+  const [showQR, setShowQR] = useState(false);
 
   const generateReferralLink = () => {
     const referralCode = `ref=${Math.random()
@@ -61,6 +64,24 @@ const PromoterCampaignItem = ({ campaign, onLeave }) => {
     }
     toast.success("Referral link copied to clipboard");
   };
+
+  const shareOnWhatsApp = () => {
+    const link = referralLink || generateReferralLink();
+    const message = `Join me in this campaign: ${link}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const shareOnTwitter = () => {
+    const link = referralLink || generateReferralLink();
+    const message = `Check out this campaign I'm promoting: ${link}`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(message)}`, '_blank');
+  };
+
+  const toggleQRCode = () => {
+    if (!referralLink) generateReferralLink();
+    setShowQR(!showQR);
+  };
+
 
   return (
     <motion.div
@@ -202,7 +223,7 @@ const PromoterCampaignItem = ({ campaign, onLeave }) => {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="overflow-hidden mt-2 p-4 bg-slate-900/25 rounded-lg border border-primary"
+            className="overflow-hidden mt-2 p-4 dark:bg-slate-900/25 bg-slate-50 rounded-lg border border-primary"
           >
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
               <div>
@@ -243,38 +264,77 @@ const PromoterCampaignItem = ({ campaign, onLeave }) => {
               </div>
 
               <div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Reward Trigger</p>
-                      <p className="text-sm text-slate-800 dark:text-white">
-                        {`${campaign.rewardTrigger} :`}
-                      </p>
-                      {campaign.rewardTrigger === 'On completing a task' ? <p className="text-xs -ml-1 p-2 rounded-md bg-slate-700 text-slate-500 dark:text-slate-300">
-                        {campaign.customRewardTrigger}
-                      </p> : ''}
-                    </div>
-            <div className="mt-2 mb-4">
-              <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
-                Target URL
-              </p>
-              <div className="flex items-center gap-1">
-                <a
-                  href={campaign.targetUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all flex items-center gap-1"
-                >
-                  {campaign.targetUrl.replace(/^https?:\/\//, "")}
-                  <FiExternalLink size={12} />
-                </a>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                  Reward Trigger
+                </p>
+                <p className="text-sm text-slate-800 dark:text-white">
+                  {`${campaign.rewardTrigger} :`}
+                </p>
+                {campaign.rewardTrigger === "On completing a task" ? (
+                  <p className="text-xs -ml-1 p-2 rounded-md bg-slate-700 text-slate-500 dark:text-slate-300">
+                    {campaign.customRewardTrigger}
+                  </p>
+                ) : (
+                  ""
+                )}
+              </div>
+
+              {/* Engagement Metrics */}
+              <div className="col-span-2">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                  Your Campaign Performance
+                </p>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      123
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Link Clicks
+                    </p>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      40
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Signups
+                    </p>
+                  </div>
+                  <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg">
+                    <p className="text-2xl font-bold text-slate-800 dark:text-white">
+                      15
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      Qualified
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-2 mb-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+                  Target URL
+                </p>
+                <div className="flex items-center gap-1">
+                  <a
+                    href={campaign.targetUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all flex items-center gap-1"
+                  >
+                    {campaign.targetUrl.replace(/^https?:\/\//, "")}
+                    <FiExternalLink size={12} />
+                  </a>
+                </div>
               </div>
             </div>
-            </div>
 
-
-            <div>
+            <div className="mb-4">
               <p className="text-xs text-slate-500 dark:text-slate-400 -mb-1">
                 Your referral link
               </p>
-              <div className="flex items-center">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <a
                   href={referralLink || generateReferralLink()}
                   target="_blank"
@@ -292,13 +352,56 @@ const PromoterCampaignItem = ({ campaign, onLeave }) => {
                   className="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
                 >
                   <FiLink size={14} />
-                  Copy Referral Link
+                  Copy
                 </button>
               </div>
+            </div>
+
+            {/* Share Tools */}
+            <div className="mt-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">
+                Share your referral link
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={shareOnWhatsApp}
+                  className="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <MdWhatsapp size={16} />
+                  WhatsApp
+                </button>
+                <button
+                  onClick={shareOnTwitter}
+                  className="bg-blue-400 hover:bg-blue-500 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <FiTwitter size={16} />
+                  Twitter
+                </button>
+                <button
+                  onClick={toggleQRCode}
+                  className="bg-purple-500 hover:bg-purple-600 text-white py-2 px-4 rounded-lg transition text-sm font-medium flex items-center justify-center gap-2"
+                >
+                  <MdQrCode2 size={16} />
+                  QR Code
+                </button>
+              </div>
+            {showQR && (
+              <div className="mt-4 p-4 bg-white dark:bg-slate-700 rounded-lg flex flex-col items-center">
+                <QRCodeSVG
+                  value={referralLink || generateReferralLink()}
+                  size={128}
+                  level="H"
+                />
+                <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                  Scan to visit campaign
+                </p>
+              </div>
+            )}
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
     </motion.div>
   );
 };

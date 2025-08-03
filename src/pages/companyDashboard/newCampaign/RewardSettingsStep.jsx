@@ -35,7 +35,7 @@ export const RewardSettingsStep = ({
   };
 
   return (
-    <div className="space-y-4 p-4 dark:bg-slate-700/30 rounded-md">
+    <div className="space-y-4 p-4 h-[44vh] overflow-auto dark:bg-slate-700/30 rounded-md">
       <h4 className="font-medium text-slate-700 dark:text-slate-300">
         Reward Settings
       </h4>
@@ -55,26 +55,20 @@ export const RewardSettingsStep = ({
             })
           }
         >
-          <TabList className="flex border-b border-slate-200 dark:border-slate-600">
-            <Tab
-              className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
-              selectedClassName="bg-primary dark:text-white text-white rounded-t-md"
-            >
-              Fixed
-            </Tab>
-            <Tab
-              className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
-              selectedClassName="bg-primary rounded-t-md dark:text-white text-white"
-            >
-              Percentage
-            </Tab>
-            <Tab
-              className="md:px-4 md:py-2 px-2 py-1 cursor-pointer focus:outline-none"
-              selectedClassName="bg-primary dark:text-white text-white rounded-t-md"
-            >
-              Custom
-            </Tab>
-          </TabList>
+     <TabList className="flex space-x-1 bg-slate-100 dark:bg-slate-700/50 p-1 rounded-lg">
+  {["Fixed", "Percentage", "Custom"].map((tab, index) => (
+    <Tab
+      key={tab}
+      className={`px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-all ${
+        ["fixed", "percentage", "custom"][index] === campaignData.rewardType
+          ? "bg-white dark:bg-slate-600 shadow-sm text-blue-600 dark:text-white"
+          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+      }`}
+    >
+      {tab}
+    </Tab>
+  ))}
+</TabList>
 
           <div className="mt-4">
 

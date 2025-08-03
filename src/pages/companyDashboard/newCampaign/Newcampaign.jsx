@@ -1,8 +1,9 @@
 import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
 import { useState, useEffect } from "react";
 import { collection, doc, serverTimestamp,   writeBatch, arrayUnion, increment  } from "firebase/firestore";
 import { db } from "../../../services/firebase";
-import { FiPlus, FiBarChart2, FiChevronRight } from "react-icons/fi";
+import { FiPlus, FiBarChart2, FiX, FiChevronRight } from "react-icons/fi";
 import { VscPreview } from 'react-icons/vsc'
 import { getAuth } from "firebase/auth";
 import { toast } from "react-hot-toast";
@@ -11,6 +12,7 @@ import { RewardSettingsStep } from "./RewardSettingsStep";
 import { BasicInfoStep } from "./BasicInfoStep";
 import { StepNavigation } from "./StepNavigation";
 import useUserData from "../../../hooks/useCompanyStats";
+
 
 export const NewCampaign = ({ isOpen, onCreate, isClose }) => {
   const INITIAL_CAMPAIGN_DATA = {
@@ -215,49 +217,57 @@ if (campaignData.budget > data.balance) {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-3xl bg-white dark:bg-slate-800 rounded-lg shadow-xl overflow-y-auto max-h-[90vh] p-2 md:p-4"
+        className="w-full max-w-3xl bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-xl shadow-2xl overflow-y-auto max-h-[90vh] p-0"
       >
         {/* Your existing component content */}
         <div className="p-4">
           <div className="border-b-2 mb-6 border-primary z-50">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg uppercase font-semibold text-slate-800 dark:text-slate-200">
-                Create New Campaign
-              </h3>
-              <button
-                type="button"
-                onClick={isClose}
-                className="text-slate-500 text-4xl hover:text-slate-800 dark:hover:text-white"
-              >
-                &times;
-              </button>
-            </div>
+            <div className="p-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-t-xl">
+      <div className="flex justify-between items-center">
+        <h3 className="text-balance md:text-xl uppercase font-bold">Create New Campaign</h3>
+        <button onClick={isClose} className="p-1 rounded-full hover:bg-white/20">
+          <FiX size={24} />
+        </button>
+      </div>
 
             {/* Stepper */}
-            <div className="mb-6 overflow-auto">
-              <nav className="flex items-center">
-                <ol className="flex items-center flex-wrap md:space-x-4">
-                  {steps.map((step, index) => (
-                    <li key={step.name} className="flex items-center">
-                      <button
-                        onClick={() => setCurrentStep(index)}
-                        className={`flex items-center py-1 px-3 rounded-full text-sm font-medium ${
-                          currentStep === index
-                            ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-200"
-                            : "text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
-                        }`}
-                      >
-                        <span className="mr-2">{step.icon}</span>
-                        {step.name}
-                      </button>
-                      {index < steps.length - 1 && (
-                        <FiChevronRight className="h-4 w-4 text-slate-400" />
-                      )}
-                    </li>
-                  ))}
-                </ol>
-              </nav>
-            </div>
+            <div className="mt-4">
+        <div className="flex items-center">
+          {steps.map((step, index) => (
+            <React.Fragment key={step.name}>
+              <button
+              title={step.name}
+                onClick={() => setCurrentStep(index)}
+                className={`flex flex-col items-center relative px-4 py-2 ${
+                  currentStep >= index 
+                    ? "text-white" 
+                    : "text-white/60"
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 ${
+                  currentStep === index 
+                    ? "bg-white text-blue-600" 
+                    : currentStep > index 
+                      ? "bg-blue-400" 
+                      : "bg-white/20"
+                }`}>
+                  {step.icon}
+                </div>
+                <span className="text-xs w-12 md:w-fit md:line-clamp-none line-clamp-1 font-medium">{step.name}</span>
+                {currentStep === index && (
+                  <div className="absolute bottom-0 h-1 w-8 bg-white rounded-full"/>
+                )}
+              </button>
+              {index < steps.length - 1 && (
+                <div className={`h-0.5 flex-1 mx-2 ${
+                  currentStep > index ? "bg-white" : "bg-white/30"
+                }`}/>
+              )}
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+    </div>
           </div>
 
           <form onSubmit={handleSubmit}>

@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 
 
 
-export function AuthLoader(){
+export function AuthLoader({headerText, bodyText}){
   return(
     <>
      <div className="fixed inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-slate-900 dark:to-slate-800 flex flex-col items-center justify-center z-50">
@@ -23,9 +23,9 @@ export function AuthLoader(){
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-2xl font-bold text-slate-800 dark:text-white mb-2"
+            className="text-2xl uppercase font-bold text-slate-800 dark:text-white mb-2"
           >
-            Authenticating
+            {headerText || 'Authenticating'}
           </motion.h2>
           <motion.p
             initial={{ y: 20, opacity: 0 }}
@@ -33,7 +33,7 @@ export function AuthLoader(){
             transition={{ delay: 0.4 }}
             className="text-slate-600 dark:text-slate-300 mb-6"
           >
-            Securely loading your session...
+            {bodyText || 'Securely loading your session...'}
           </motion.p>
         </motion.div>
       </div>

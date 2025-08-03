@@ -1,11 +1,8 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import {
-  FiBarChart2,
-  FiMoreVertical,
   FiCopy,
   FiSave,
-  FiX,
   FiEdit2,
 } from "react-icons/fi";
 import { LuRefreshCcw } from "react-icons/lu";
@@ -16,6 +13,8 @@ import useUserData from "../../../hooks/useCompanyStats";
 import { doc, increment, writeBatch } from "firebase/firestore";
 import { db } from "../../../services/firebase";
 import { getAuth } from "firebase/auth";
+import { AuthLoader } from "../../../components/AuthLoader";
+import { MdCampaign } from "react-icons/md";
 
 const statusOptions = [
   {
@@ -72,7 +71,7 @@ export default function CompanyCampaignTable() {
       const auth = getAuth();
       const user = auth.currentUser;
       const batch = writeBatch(db);
-       const userRef = doc(db, "users", user.uid);
+      const userRef = doc(db, "users", user.uid);
   
 
   const toggleExpand = (id) => {
@@ -229,8 +228,8 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
 
   if (loading) {
     return (
-      <div className="text-slate-500 dark:text-slate-400">
-        Loading campaigns...
+      <div className="h-[70vh]">
+        <AuthLoader headerText={'Loading Campaigns'}/>
       </div>
     );
   }
@@ -263,28 +262,25 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
   </button>
   <div className="p-2 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
     <h3 className="font-semibold flex items-center gap-2 text-lg">
-      <FiBarChart2 className="text-blue-500" /> Campaign Performance
+      <MdCampaign size={40} className="text-blue-500" /> Campaign Performance
     </h3>
   </div>
 
   <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
     <div className="w-full overflow-hidden">
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-2 md:gap-4 items-center p-2 md:px-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
-        <div className="col-span-5 md:col-span-5 text-sm font-medium text-slate-600 dark:text-slate-300">
+      <div className="grid grid-cols-12 gap-2 sm:*:text-base *:text-xs md:gap-4 items-center p-2 md:px-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-10">
+        <div className="col-span-6 font-medium text-slate-600 dark:text-slate-300">
           Campaign Name
         </div>
-        <div className="col-span-2 md:col-span-2 text-sm font-medium text-slate-600 dark:text-slate-300 text-center">
+        <div className="col-span-2 font-medium text-slate-600 dark:text-slate-300 text-center">
           Status
         </div>
-        <div className="hidden md:block md:col-span-2 text-sm font-medium text-slate-600 dark:text-slate-300 text-center">
-          Clicks
+        <div className="col-span-1 font-medium text-slate-600 dark:text-slate-300 text-center">
+          Join
         </div>
-        <div className="col-span-3 md:col-span-2 text-sm font-medium text-slate-600 dark:text-slate-300 text-center">
+        <div className="col-span-3 font-medium text-slate-600 dark:text-slate-300 text-center">
           Budget
-        </div>
-        <div className="col-span-2 md:col-span-1 text-sm font-medium text-slate-600 dark:text-slate-300 text-right">
-          Actions
         </div>
       </div>
 
@@ -298,13 +294,13 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
             <div
               className={`grid grid-cols-12 ${
                 expandedRow === campaign.id
-                  ? "bg-slate-100 dark:bg-slate-900/40"
+                  ? "bg-slate-100 dark:bg-slate-900/20 border border-primary"
                   : ""
-              } gap-2 md:gap-4 items-center p-2 md:p-4 border-b-2 border-primary rounded-md cursor-pointer`}
+              } gap-2 md:gap-4 sm:*:text-base *:text-xs tems-center p-2 md:p-4 border-b-2 dark:border-slate-700 border-slate-100 cursor-pointer`}
               onClick={() => toggleExpand(campaign.id)}
             >
               {/* Name */}
-              <div className="col-span-5 md:col-span-5 font-medium flex items-center gap-2 truncate">
+              <div className="col-span-6 font-medium flex items-center gap-2 truncate">
                 {editingCampaignId === campaign.id ? (
                   <input
                     type="text"
@@ -321,7 +317,7 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
               </div>
 
               {/* Status */}
-              <div className="col-span-2 md:col-span-2 flex justify-center">
+              <div className="col-span-2 flex justify-center">
                 {editingCampaignId === campaign.id ? (
                   <select
                     value={editValues.status}
@@ -348,13 +344,12 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
                 )}
               </div>
 
-              {/* Clicks - Hidden on mobile */}
-              <div className="hidden md:block md:col-span-2 text-center">
+              <div className="col-span-1 truncate text-center">
                 {campaign.totalJoined ?? 0}
               </div>
 
               {/* Budget */}
-              <div className="col-span-3 md:col-span-2 text-center font-medium">
+              <div className="col-span-3 text-center truncate font-medium">
                 {editingCampaignId === campaign.id ? (
                   <input
                     type="number"
@@ -368,36 +363,11 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
                   />
                 ) : (
                   <>
-                    <span className="hidden md:inline">
-                      ₦{campaign.budget ?? 0}
-                    </span>
-                    <span className="md:hidden text-sm">
+                    <span>
                       ₦{campaign.budget ?? 0}
                     </span>
                   </>
                 )}
-              </div>
-
-              {/* Actions */}
-              <div className="col-span-2 md:col-span-1 flex justify-end">
-                <motion.button
-                  whileHover={{ rotate: 90 }}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (editingCampaignId === campaign.id) {
-                      cancelEditing();
-                    } else {
-                      startEditing(campaign);
-                    }
-                  }}
-                >
-                  {editingCampaignId === campaign.id ? (
-                    <FiX size={18} />
-                  ) : (
-                    <FiMoreVertical />
-                  )}
-                </motion.button>
               </div>
             </div>
 
@@ -412,7 +382,7 @@ endDate: campaign.duration?.endDate?.split("T")[0] || "",
                   }}
                   exit={{ opacity: 0, maxHeight: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="overflow-hidden bg-slate-50/50 border rounded-md border-primary dark:bg-slate-900/30"
+                  className="bg-slate-50/50 border border-primary dark:bg-slate-900/50"
                 >
                   <div className="px-3 py-2 md:px-5 md:py-4 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 text-xs md:text-sm">
                     {/* Editable Fields */}
