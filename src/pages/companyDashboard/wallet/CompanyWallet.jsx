@@ -40,6 +40,9 @@ export default function CompanyWallet() {
       phone_number: data?.phone || 'Null',
       name: data?.displayName || data?.name,
     },
+    meta: {
+      userEmail: data?.email || "prospersamuel100@gmail.com"
+    },
     customizations: {
       title: 'Deposit to Your Wallet',
       description: 'Fund your account',
