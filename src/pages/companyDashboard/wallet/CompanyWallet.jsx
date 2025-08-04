@@ -40,7 +40,7 @@ export default function CompanyWallet() {
       phone_number: data?.phone || 'Null',
       name: data?.displayName || data?.name,
     },
-    meta_data: {
+    meta: {
       userEmail: data?.email || "prospersamuel100@gmail.com"
     },
     customizations: {
