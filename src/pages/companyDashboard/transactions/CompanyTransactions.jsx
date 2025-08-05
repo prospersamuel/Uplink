@@ -13,6 +13,8 @@ import { RiExchangeLine } from "react-icons/ri";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { MdCampaign } from "react-icons/md";
+import { db, auth } from "../../../services/firebase"; // Your Firebase config
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 
 export default function CompanyTransactions() {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -22,57 +24,58 @@ export default function CompanyTransactions() {
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample transaction data with campaign types
-  const transactions = [
-    {
-      id: 1,
-      type: "deposit",
-      amount: 5000,
-      status: "completed",
-      timestamp: Date.now(),
-    },
-    {
-      id: 2,
-      type: "withdrawal",
-      amount: 250,
-      status: "completed",
-      timestamp: Date.now(),
-    },
-    {
-      id: 3,
-      type: "campaign_created",
-      amount: 100,
-      status: "completed",
-      timestamp: Date.now(),
-    },
-    {
-      id: 4,
-      type: "campaign_deleted",
-      amount: 50,
-      status: "completed",
-      timestamp: Date.now() - 86400000, // yesterday
-    },
-    {
-      id: 5,
-      type: "campaign_created",
-      amount: 200,
-      status: "failed",
-      timestamp: Date.now() - 172800000, // 2 days ago
-    },
-  ];
+  // Fetch transactions for current user
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        setLoading(true);
+        const user = auth.currentUser;
+        if (!user) {
+          setTransactions([]);
+          return;
+        }
 
-  const filters = [
-    { id: "all", label: "All" },
-    { id: "deposit", label: "Deposits" },
-    { id: "withdrawal", label: "Withdrawals" },
-    { id: "campaigns", label: "Campaigns" },
-  ];
+        const transactionsRef = collection(db, "transactions");
+        const q = query(
+          transactionsRef,
+          where("userId", "==", user.uid),
+          orderBy("createdAt", "desc")
+        );
 
-  const statuses = {
-    completed: { color: "bg-green-500", text: "Completed" },
-    failed: { color: "bg-red-500", text: "Failed" }
-  };
+        const querySnapshot = await getDocs(q);
+        const transactionsData = [];
+        
+        for (const doc of querySnapshot.docs) {
+          const txData = doc.data();
+          let details = {};
+          
+          if (txData.type === "deposit") {
+            const depositSnap = await getDocs(collection(doc.ref, "deposits"));
+            if (!depositSnap.empty) details = depositSnap.docs[0].data();
+          }
+          
+          transactionsData.push({
+            id: doc.id,
+            ...txData,
+            ...details,
+            timestamp: txData.createdAt?.toDate().getTime() || Date.now()
+          });
+        }
+        
+        setTransactions(transactionsData);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTransactions();
+  }, []);
+
 
   const filteredTransactions = transactions.filter(tx => {
     // Filter by type - handle campaign cases
@@ -87,10 +90,11 @@ export default function CompanyTransactions() {
     
     // Filter by search query
     const matchesSearch = searchQuery === "" || 
-      tx.amount.toString().includes(searchQuery) ||
-      tx.status.toString().includes(searchQuery) ||
-      tx.timestamp.toString().includes(searchQuery) ||
-      tx.type.toString().includes(searchQuery)
+      tx.amount?.toString().includes(searchQuery) ||
+      tx.status?.toString().includes(searchQuery) ||
+      tx.timestamp?.toString().includes(searchQuery) ||
+      tx.type?.toString().includes(searchQuery) ||
+      tx.txRef?.toString().includes(searchQuery);
     
     // Filter by date range
     const txDate = new Date(tx.timestamp);
@@ -146,13 +150,21 @@ export default function CompanyTransactions() {
       case "campaign_deleted":
         return "Campaign Deleted";
       default:
-        return type.charAt(0).toUpperCase() + type.slice(1);
+        return type?.charAt(0)?.toUpperCase() + type?.slice(1) || "Transaction";
     }
   };
 
   const clearDateFilter = () => {
     setDateRange([null, null]);
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -235,7 +247,7 @@ export default function CompanyTransactions() {
         </div>
       </div>
 
-      <div className="flex  overflow-auto pb-2">
+      <div className="flex overflow-auto pb-2">
         <div className="flex gap-1 md:gap-2">
           {filters.map((filter) => (
             <button
@@ -280,6 +292,11 @@ export default function CompanyTransactions() {
                     </div>
                     <div>
                       <div className="font-medium">{getTypeLabel(tx.type)}</div>
+                      {tx.txRef && (
+                        <div className="text-xs text-slate-500 dark:text-slate-400">
+                          Ref: {tx.txRef}
+                        </div>
+                      )}
                     </div>
                   </div>
 
