@@ -39,6 +39,7 @@ export default function CompanyWallet() {
       email: data?.email || 'Null',
       phone_number: data?.phone || 'Null',
       name: data?.displayName || data?.name,
+      userId: data?.uid || "unknown_user",
     },
     meta: {
       userEmail: data?.email || "prospersamuel100@gmail.com"

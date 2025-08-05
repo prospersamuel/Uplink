@@ -7,12 +7,14 @@ import {
   FiCalendar,
   FiChevronLeft,
   FiChevronRight,
-  FiX
+  FiX,
+  FiCopy
 } from "react-icons/fi";
 import { RiExchangeLine } from "react-icons/ri";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { MdCampaign } from "react-icons/md";
+import toast from "react-hot-toast";
 
 export default function CompanyTransactions() {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -31,6 +33,7 @@ export default function CompanyTransactions() {
       amount: 5000,
       status: "completed",
       timestamp: Date.now(),
+      tx_ref: crypto.randomUUID().split('-')[4]
     },
     {
       id: 2,
@@ -279,7 +282,19 @@ export default function CompanyTransactions() {
                       {getTypeIcon(tx.type)}
                     </div>
                     <div>
-                      <div className="font-medium">{getTypeLabel(tx.type)}</div>
+                      <div className="font-medium mb-1">{getTypeLabel(tx.type)}</div>
+                      {tx.type === 'deposit' ? 
+                      <div className="flex gap-2 items-center">
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{tx.tx_ref}</span>
+                        <FiCopy className="text-slate-500 dark:text-slate-400 cursor-pointer" onClick={(e)=> {
+                          const selected = e.currentTarget;
+                          if (selected) {
+                            navigator.clipboard.writeText(tx.tx_ref)
+                          toast.success(`task ref: ${tx.tx_ref} copied successfully`)    
+                          }
+                        }
+                        }/>
+                      </div>  : ''}
                     </div>
                   </div>
 
