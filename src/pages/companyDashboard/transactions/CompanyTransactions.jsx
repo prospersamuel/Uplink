@@ -13,7 +13,7 @@ import { RiExchangeLine } from "react-icons/ri";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { MdCampaign } from "react-icons/md";
-import { db, auth } from "../../../services/firebase"; // Your Firebase config
+import { db, auth } from "../../../services/firebase";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 
 export default function CompanyTransactions() {
@@ -26,6 +26,21 @@ export default function CompanyTransactions() {
   const [startDate, endDate] = dateRange;
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Add missing filters array
+  const filters = [
+    { id: "all", label: "All" },
+    { id: "deposit", label: "Deposits" },
+    { id: "withdrawal", label: "Withdrawals" },
+    { id: "campaigns", label: "Campaigns" },
+  ];
+
+  // Add statuses configuration
+  const statuses = {
+    completed: { color: "bg-green-500", text: "Completed" },
+    failed: { color: "bg-red-500", text: "Failed" },
+    pending: { color: "bg-yellow-500", text: "Pending" }
+  };
 
   // Fetch transactions for current user
   useEffect(() => {
@@ -76,14 +91,13 @@ export default function CompanyTransactions() {
     fetchTransactions();
   }, []);
 
-
   const filteredTransactions = transactions.filter(tx => {
     // Filter by type - handle campaign cases
     let matchesFilter = false;
     if (activeFilter === "all") {
       matchesFilter = true;
     } else if (activeFilter === "campaigns") {
-      matchesFilter = tx.type.includes("campaign");
+      matchesFilter = tx.type?.includes("campaign");
     } else {
       matchesFilter = tx.type === activeFilter;
     }
@@ -456,4 +470,4 @@ export default function CompanyTransactions() {
       )}
     </div>
   );
-}
+      }
