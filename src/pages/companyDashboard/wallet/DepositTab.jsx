@@ -51,7 +51,6 @@ export default function DepositTab({ amount, setAmount, handleFlutterPayment }) 
             <SiFlutter className="text-blue-600 text-2xl" />
             <span>Flutterwave Payment</span>
           </div>
-          <FiChevronRight />
         </button>
       </div>
     </div>

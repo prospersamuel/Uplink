@@ -39,7 +39,10 @@ export default function Statscard() {
     },
     {
       title: "Total Spent",
-      value: "₦ " + data.totalSpent.toFixed(2) || "0.00",
+      value: "₦ " + Number(data.totalSpent).toLocaleString(undefined, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) || "0.00",
       change: "+12.5%",
       icon: <RiExchangeLine />,
     },

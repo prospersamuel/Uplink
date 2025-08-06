@@ -15,8 +15,24 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { MdCampaign } from "react-icons/md";
 import toast from "react-hot-toast";
+import { useUserDocuments } from "../../../hooks/useCompanyStats";
+import { AuthLoader } from "../../../components/AuthLoader";
 
 export default function CompanyTransactions() {
+  // Fetch transactions from Firestore
+  const { 
+    documents: transactions = [], 
+    loading: transactionsLoading,
+    error: transactionsError,
+    refresh: refreshTransactions 
+  } = useUserDocuments('transactions', 'userId', {
+    orderBy: {
+      field: 'createdAt',
+      direction: 'desc'
+    }
+  });
+
+  // State management
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -25,57 +41,12 @@ export default function CompanyTransactions() {
   const [dateRange, setDateRange] = useState([null, null]);
   const [startDate, endDate] = dateRange;
 
-  // Sample transaction data with campaign types
-  const transactions = [
-    {
-      id: 1,
-      type: "deposit",
-      amount: 5000,
-      status: "completed",
-      timestamp: Date.now(),
-      tx_ref: crypto.randomUUID().split('-')[4]
-    },
-    {
-      id: 2,
-      type: "withdrawal",
-      amount: 250,
-      status: "completed",
-      timestamp: Date.now(),
-    },
-    {
-      id: 3,
-      type: "campaign_created",
-      amount: 100,
-      status: "completed",
-      timestamp: Date.now(),
-    },
-    {
-      id: 4,
-      type: "campaign_deleted",
-      amount: 50,
-      status: "completed",
-      timestamp: Date.now() - 86400000, // yesterday
-    },
-    {
-      id: 5,
-      type: "campaign_created",
-      amount: 200,
-      status: "failed",
-      timestamp: Date.now() - 172800000, // 2 days ago
-    },
-  ];
-
   const filters = [
     { id: "all", label: "All" },
     { id: "deposit", label: "Deposits" },
     { id: "withdrawal", label: "Withdrawals" },
     { id: "campaigns", label: "Campaigns" },
   ];
-
-  const statuses = {
-    completed: { color: "bg-green-500", text: "Completed" },
-    failed: { color: "bg-red-500", text: "Failed" }
-  };
 
   const filteredTransactions = transactions.filter(tx => {
     // Filter by type - handle campaign cases
@@ -91,12 +62,12 @@ export default function CompanyTransactions() {
     // Filter by search query
     const matchesSearch = searchQuery === "" || 
       tx.amount.toString().includes(searchQuery) ||
-      tx.status.toString().includes(searchQuery) ||
-      tx.timestamp.toString().includes(searchQuery) ||
-      tx.type.toString().includes(searchQuery)
+      (tx.status && tx.status.toString().includes(searchQuery)) ||
+      (tx.timestamp && tx.timestamp.toString().includes(searchQuery)) ||
+      tx.type.toString().includes(searchQuery);
     
     // Filter by date range
-    const txDate = new Date(tx.timestamp);
+    const txDate = tx.createdAt?.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt || tx.timestamp);
     const matchesDate = !startDate || !endDate || 
       (txDate >= new Date(startDate) && txDate <= new Date(endDate));
     
@@ -116,15 +87,21 @@ export default function CompanyTransactions() {
     setCurrentPage(1);
   }, [activeFilter, searchQuery, dateRange]);
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
+  const formatDate = (dateValue) => {
+    if (!dateValue) return "N/A";
+    
+    try {
+      const date = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
+      return date.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    } catch {
+      return "Invalid Date";
+    }
   };
 
   const getTypeIcon = (type) => {
@@ -156,6 +133,29 @@ export default function CompanyTransactions() {
   const clearDateFilter = () => {
     setDateRange([null, null]);
   };
+
+  // Loading and error states
+  if (transactionsLoading) {
+    return (
+       <div className="h-[70vh]">
+              <AuthLoader headerText={'Loading transactions'}/>
+        </div>
+    );
+  }
+
+  if (transactionsError) {
+    return (
+      <div className="p-4 bg-red-100 text-red-700 rounded-lg">
+        Error loading transactions: {transactionsError}
+        <button 
+          onClick={refreshTransactions}
+          className="ml-2 px-3 py-1 bg-red-600 text-white rounded-md"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -274,7 +274,7 @@ export default function CompanyTransactions() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="grid grid-cols-12 *:text-xs px-2 md:px-6 py-4 border-b border-slate-100 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
+                  className="grid grid-cols-12 items-center *:text-xs md:*:text-sm px-2 md:px-6 py-4 border-b border-slate-100 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
                 >
                   {/* Transaction Column - Expanded on mobile */}
                   <div className="col-span-4 flex items-center gap-3">
@@ -285,12 +285,12 @@ export default function CompanyTransactions() {
                       <div className="font-medium mb-1">{getTypeLabel(tx.type)}</div>
                       {tx.type === 'deposit' ? 
                       <div className="flex gap-2 items-center">
-                        <span className="text-xs text-slate-500 dark:text-slate-400">{tx.tx_ref}</span>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">{tx.txRef.split('_')[1]}</span>
                         <FiCopy className="text-slate-500 dark:text-slate-400 cursor-pointer" onClick={(e)=> {
                           const selected = e.currentTarget;
                           if (selected) {
-                            navigator.clipboard.writeText(tx.tx_ref)
-                          toast.success(`task ref: ${tx.tx_ref} copied successfully`)    
+                            navigator.clipboard.writeText(tx.txRef)
+                          toast.success(`copied successfully`)    
                           }
                         }
                         }/>
@@ -313,14 +313,14 @@ export default function CompanyTransactions() {
 
                   <div className="col-span-3 items-center">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${statuses[tx.status]?.color || "bg-gray-500"}`}></span>
-                      <span>{statuses[tx.status]?.text || tx.status}</span>
+                      <span className={`w-2 animate-pulsing animate-iteration-count-infinite h-2 rounded-full ${tx.status === 'successful' ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                      <span>{tx.status}</span>
                     </div>
                   </div>
 
                   <div className="col-span-3 flex flex-col">
                     <div className="text-xs text-slate-500 dark:text-slate-400">
-                      {formatDate(tx.timestamp)}
+                      {formatDate(tx.createdAt)}
                     </div>
                   </div>
                 </motion.div>

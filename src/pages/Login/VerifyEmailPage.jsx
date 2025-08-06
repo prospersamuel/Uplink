@@ -5,6 +5,8 @@ import { auth } from "../../services/firebase";
 import { sendEmailVerification } from "firebase/auth";
 import toast from "react-hot-toast";
 import { FiMail, FiRefreshCw, FiCheckCircle } from "react-icons/fi";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "../../services/firebase";
 
 export default function VerifyEmailPage() {
   const [emailVerified, setEmailVerified] = useState(auth.currentUser?.emailVerified);
@@ -14,16 +16,26 @@ export default function VerifyEmailPage() {
   useEffect(() => {
     const interval = setInterval(async () => {
       await auth.currentUser.reload();
-      if (auth.currentUser.emailVerified) {
-        clearInterval(interval);
-        setEmailVerified(true);
-        toast.success("Email verified successfully!");
-        setTimeout(() => navigate("/dashboard"), 1500);
-      }
+if (auth.currentUser.emailVerified) {
+  clearInterval(interval);
+  setEmailVerified(true);
+
+  // ✅ Update Firestore
+  const userRef = doc(db, "users", auth.currentUser.uid);
+  await updateDoc(userRef, {
+    verified: true,
+    verifiedAt: new Date(), // Optional
+  });
+
+  toast.success("Email verified successfully!");
+  setTimeout(() => navigate("/dashboard"), 1500);
+}
     }, 3000); // poll every 3 seconds
 
     return () => clearInterval(interval);
   }, [navigate]);
+
+  
 
   const handleResend = async () => {
     setSending(true);

@@ -14,7 +14,7 @@ import { getAuth } from "firebase/auth";
 
 export default function CompanyWallet() {
   const [activeTab, setActiveTab] = useState("deposit");
-  const [amount, setAmount] = useState(0);
+  const [amount, setAmount] = useState();
   const [savedMethods, setSavedMethods] = useState([]);
   const [selectedMethod, setSelectedMethod] = useState(null);
   
@@ -54,18 +54,37 @@ export default function CompanyWallet() {
  const handleFlutterPayment = useFlutterwave(config);
 
 const initiateFlutterPayment = () => {
+  const loadingToastId = toast.loading('Initializing payment gateway...');
+  
   handleFlutterPayment({
     callback: async (response) => {
-      toast.success("Payment verified and balance updated!");
-      refresh()
-      closePaymentModal(); // Always close the modal
+      const { status, tx_ref, transaction_id } = response;
+
+      try {
+        if (status === "successful") {
+          toast.dismiss(loadingToastId);
+          // Optionally: Verify with your backend here
+          toast.success("Payment verified and balance updated!");
+          refresh();
+        } else {
+          toast.dismiss(loadingToastId);
+          toast.error("Payment was not successful.");
+          console.warn("Unsuccessful payment:", response);
+        }
+      } catch (err) {
+        toast.dismiss(loadingToastId);
+        toast.error("Payment verification failed. Please contact support.");
+        console.error("Payment verification error:", err);
+      } finally {
+        closePaymentModal();
+      }
     },
     onClose: () => {
+      toast.dismiss(loadingToastId);
       toast("Transaction was cancelled.");
     },
   });
 };
-
 
   const savePaymentMethod = (methodDetails) => {
     const method = {

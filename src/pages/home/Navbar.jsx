@@ -3,7 +3,7 @@ import { FaSun, FaMoon } from "react-icons/fa";
 import { useApp } from "../../context/Appcontext";
 import { CiMenuFries } from "react-icons/ci";
 import { motion, AnimatePresence } from "framer-motion";
-import { FiLogIn } from "react-icons/fi";
+import { BiLogInCircle } from "react-icons/bi";
 import logo from '../../assets/logo.png'
 
 export default function Navbar() {
@@ -70,7 +70,7 @@ export default function Navbar() {
             whileTap={{ scale: 0.97 }}
             className="flex items-center gap-2 bg-gradient-to-r from-primary to-cyan-500 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
           >
-            Login <FiLogIn size={14} />
+            Login <BiLogInCircle size={14} />
           </motion.button>
 
           {/* Theme Toggle */}
@@ -135,7 +135,7 @@ export default function Navbar() {
               whileTap={{ scale: 0.97 }}
               className="flex items-center gap-2 animate-slide-in-right bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
             >
-              Login <FiLogIn size={14} />
+              Login <BiLogInCircle size={14} />
             </motion.button>
           </motion.div>
         )}

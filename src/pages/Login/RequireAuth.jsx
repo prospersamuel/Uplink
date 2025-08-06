@@ -49,7 +49,8 @@ export default function RequireAuth({ children, onRoleFetched }) {
         if (userSnap.exists()) {
           const fetchedRole = userSnap.data().role;
           setRole(fetchedRole);
-          localStorage.setItem(`user_role_${user.uid}`, fetchedRole);
+          localStorage.setItem(`userRole= ${fetchedRole}`);
+          if (onRoleFetched) onRoleFetched(fetchedRole);
         } else {
           setRole(null);
         }
@@ -70,6 +71,7 @@ export default function RequireAuth({ children, onRoleFetched }) {
 
   // Redirects
   if (!user) return <Navigate to="/" replace />;
+  if (!user || loading || roleLoading || !role) return <AuthLoader />;
   if (!user.emailVerified) return <Navigate to="/verify-email" replace />;
 
   // Pass role if needed

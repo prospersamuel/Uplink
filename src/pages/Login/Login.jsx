@@ -88,7 +88,7 @@ export default function Login({ onClose }) {
     try {
       setGoogleLoading(true);
 
-      let roleIfNew = null;
+      let roleIfNew = mode === "signup" ? inputs["Role"] : null;
 if (mode === "signup" && !inputs["Role"]) {
       newErrors["Role"] = "Please select a role.";
     }
@@ -133,8 +133,9 @@ if (mode === "signup" && !inputs["Role"]) {
       showAlert({
         type: "error",
         title: "Google Sign-in Failed",
-        message: getFriendlyError(err.code) || "Something went wrong!",
+        message: err.message || getFriendlyError(err.code) || "Something went wrong!",
       });
+      
     } finally {
       setGoogleLoading(false);
     }

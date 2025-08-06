@@ -33,6 +33,7 @@ import CompanySidebar from "./CompanySidebar";
 import CompanyHeader from "./CompanyHeader";
 import { auth } from "../../../services/firebase";
 import useCompanyData from "../../../hooks/useCompanyStats";
+import { MdCampaign } from "react-icons/md";
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
@@ -137,7 +138,7 @@ export default function CompanyDashboard() {
         {
           id: "campaigns",
           title: "Campaigns",
-          icon: <FiZap />,
+          icon: <MdCampaign />,
           component: <CampaignTable />,
         },
       ],

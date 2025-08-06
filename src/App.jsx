@@ -16,7 +16,7 @@ import { AuthLoader } from "./components/AuthLoader";
 
 function AppContent() {
   const { theme, showLogin, setShowLogin } = useApp();
-  const [role, setRole] = useState(localStorage.getItem("userRole") || null);
+  const [role, setRole] = useState(null);
   const [loadingRole, setLoadingRole] = useState(true);
 
   useEffect(() => {
@@ -58,18 +58,23 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <RequireAuth>
-              {role === "promoter" ? (
-                <PromoterDashboard />
-              ) : (
-                <CompanyDashboard />
-              )}
-            </RequireAuth>
-          }
-        />
+       <Route
+  path="/dashboard"
+  element={
+    <RequireAuth
+      onRoleFetched={(fetchedRole) => {
+        setRole(fetchedRole);
+        localStorage.setItem("userRole", fetchedRole); // optional fallback
+      }}
+    >
+      {role === "promoter" ? (
+        <PromoterDashboard />
+      ) : (
+        <CompanyDashboard />
+      )}
+    </RequireAuth>
+  }
+/>
       </Routes>
 
       {showLogin && <Login onClose={() => setShowLogin(false)} />}
