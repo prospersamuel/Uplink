@@ -217,7 +217,7 @@ if (campaignData.budget > data.balance) {
         initial={{ scale: 0.95, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.95, opacity: 0 }}
-        className="w-full max-w-3xl bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-xl shadow-2xl overflow-y-auto max-h-[90vh] p-0"
+        className="w-full max-w-3xl bg-gradient-to-br from-white to-blue-50 dark:from-slate-800 dark:to-slate-900 rounded-2xl shadow-2xl overflow-y-auto max-h-[90vh]"
       >
         {/* Your existing component content */}
         <div className="p-4">

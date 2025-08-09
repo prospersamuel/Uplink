@@ -195,7 +195,7 @@ export default function CompanyReferralChart() {
         />
       </motion.div>
       
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between md:flex-row flex-col gap-1 items-start md:items-center mt-4">
         <div className="text-sm text-slate-500 dark:text-slate-400 flex items-center">
           <FiInfo className="mr-1" size={14} />
           <span>+{percentChange}% vs previous period</span>

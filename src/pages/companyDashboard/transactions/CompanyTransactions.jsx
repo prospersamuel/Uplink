@@ -63,11 +63,11 @@ export default function CompanyTransactions() {
     const matchesSearch = searchQuery === "" || 
       tx.amount.toString().includes(searchQuery) ||
       (tx.status && tx.status.toString().includes(searchQuery)) ||
-      (tx.timestamp && tx.timestamp.toString().includes(searchQuery)) ||
+      (tx.createdAt && tx.createdAt.toString().includes(searchQuery)) ||
       tx.type.toString().includes(searchQuery);
     
     // Filter by date range
-    const txDate = tx.createdAt?.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt || tx.timestamp);
+    const txDate = tx.createdAt?.toDate ? tx.createdAt.toDate() : new Date(tx.createdAt || tx.createdAt);
     const matchesDate = !startDate || !endDate || 
       (txDate >= new Date(startDate) && txDate <= new Date(endDate));
     
@@ -259,7 +259,7 @@ export default function CompanyTransactions() {
       <div className="bg-white dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 overflow-x-auto">
         <div className="min-w-[600px]">
           {/* Table Headers */}
-          <div className="grid grid-cols-12 px-2 md:px-6 py-3 bg-slate-50 dark:bg-slate-800 text-sm font-medium text-slate-500 dark:text-slate-400">
+          <div className="grid grid-cols-12 px-2 font-semibold md:px-6 py-3 bg-slate-50 dark:bg-slate-800 text-sm text-slate-500 dark:text-slate-400">
             <div className="col-span-4">Transaction</div>
             <div className="col-span-2">Amount</div>
             <div className="col-span-3">Status</div>
@@ -277,26 +277,33 @@ export default function CompanyTransactions() {
                   className="grid grid-cols-12 items-center *:text-xs md:*:text-sm px-2 md:px-6 py-4 border-b border-slate-100 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition"
                 >
                   {/* Transaction Column - Expanded on mobile */}
-                  <div className="col-span-4 flex items-center gap-3">
-                    <div className="p-2 rounded-full bg-slate-100 dark:bg-slate-700">
-                      {getTypeIcon(tx.type)}
-                    </div>
-                    <div>
-                      <div className="font-medium mb-1">{getTypeLabel(tx.type)}</div>
-                      {tx.type === 'deposit' ? 
-                      <div className="flex gap-2 items-center">
-                        <span className="text-xs text-slate-500 dark:text-slate-400">{tx.txRef.split('_')[1]}</span>
-                        <FiCopy className="text-slate-500 dark:text-slate-400 cursor-pointer" onClick={(e)=> {
-                          const selected = e.currentTarget;
-                          if (selected) {
-                            navigator.clipboard.writeText(tx.txRef)
-                          toast.success(`copied successfully`)    
-                          }
-                        }
-                        }/>
-                      </div>  : ''}
-                    </div>
-                  </div>
+                  {/* In the transaction row rendering */}
+<div className="col-span-4 flex items-center gap-3">
+  <div className="p-2 rounded-full bg-slate-100 dark:bg-slate-700">
+    {getTypeIcon(tx.type)}
+  </div>
+  <div>
+    <div className="font-medium mb-1">{getTypeLabel(tx.type)}</div>
+    {tx.type === 'withdrawal' && tx.account ? (
+      <div className="text-xs text-slate-500 dark:text-slate-400">
+        {tx.account.bankName} ••••{tx.account.accountNumber.slice(-4)}
+      </div>
+    ) : null}
+    {tx.type === 'deposit' ? (
+      <div className="flex gap-2 items-center">
+        <span className="text-xs text-slate-500 dark:text-slate-400">
+          {tx.txRef?.split('_')[1]}
+        </span>
+        <FiCopy className="text-slate-500 dark:text-slate-400 cursor-pointer" 
+          onClick={() => {
+            navigator.clipboard.writeText(tx.txRef);
+            toast.success('Copied successfully');
+          }}
+        />
+      </div>
+    ) : null}
+  </div>
+</div>
 
                   <div className="col-span-2">
                     <div className={`font-medium ${
@@ -311,12 +318,16 @@ export default function CompanyTransactions() {
                     </div>
                   </div>
 
-                  <div className="col-span-3 items-center">
-                    <div className="flex items-center gap-2">
-                      <span className={`w-2 animate-pulsing animate-iteration-count-infinite h-2 rounded-full ${tx.status === 'successful' ? 'bg-green-500' : 'bg-red-500'}`}></span>
-                      <span>{tx.status}</span>
-                    </div>
-                  </div>
+                 <div className="col-span-3 items-center">
+  <div className="flex items-center gap-2">
+    <span className={`w-2 h-2 rounded-full ${
+      tx.status === 'successful' ? 'bg-green-500' : 
+      tx.status === 'pending' ? 'bg-yellow-500' : 
+      'bg-red-500'
+    }`}></span>
+    <span className="capitalize">{tx.status}</span>
+    </div>
+</div>
 
                   <div className="col-span-3 flex flex-col">
                     <div className="text-xs text-slate-500 dark:text-slate-400">

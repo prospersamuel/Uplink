@@ -49,7 +49,7 @@ export default function RequireAuth({ children, onRoleFetched }) {
         if (userSnap.exists()) {
           const fetchedRole = userSnap.data().role;
           setRole(fetchedRole);
-          localStorage.setItem(`userRole= ${fetchedRole}`);
+          localStorage.setItem("userRole", fetchedRole);
           if (onRoleFetched) onRoleFetched(fetchedRole);
         } else {
           setRole(null);

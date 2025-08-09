@@ -1,12 +1,11 @@
 import { BsBank } from "react-icons/bs";
-import { FiCheck, FiTrash2, FiEdit } from "react-icons/fi";
+import { FiCheck, FiTrash2 } from "react-icons/fi";
 
 export default function PaymentMethodList({
   savedMethods,
   selectedMethod,
   setSelectedMethod,
   removePaymentMethod,
-  onEdit,
   emptyState
 }) {
   if (savedMethods.length === 0) {
@@ -40,17 +39,6 @@ export default function PaymentMethodList({
                 <FiCheck className="text-blue-500 text-xl" />
               ) : (
                 <>
-                  {onEdit && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onEdit(index);
-                      }}
-                      className="text-blue-500 hover:text-blue-700 p-1"
-                    >
-                      <FiEdit size={16} />
-                    </button>
-                  )}
                   <button
                     onClick={(e) => {
                       e.stopPropagation();

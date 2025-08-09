@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { FiPlus } from "react-icons/fi";
 import { BsBank } from "react-icons/bs";
 import toast from "react-hot-toast";
 import PaymentMethodList from "./PaymentMethodList";
-import { rtdb } from "../../../services/firebase";
-import { ref, update } from "firebase/database";
+import { db } from "../../../services/firebase"; // Remove rtdb import
+import emailjs from '@emailjs/browser';
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 
 export default function WithdrawTab({
   amount,
@@ -18,7 +19,37 @@ export default function WithdrawTab({
   MIN_WITHDRAWAL = 5000,
   data
 }) {
-    const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const emailFormRef = useRef(null);
+
+  const sendWithdrawalEmail = async (amountNum, accountDetails) => {
+    const loadingToast = toast.loading("Processing withdrawal...");
+    
+    try {
+      const templateParams = {
+        user_name: data.displayName || 'User',
+        user_email: data.email || 'No email provided',
+        amount: `₦${amountNum.toLocaleString()}`,
+        bank_name: accountDetails.bankName || 'N/A',
+        account_number: accountDetails.accountNumber || 'N/A',
+        account_name: accountDetails.accountName || 'N/A',
+        timestamp: new Date().toLocaleString(),
+        balance: `₦${balance.toLocaleString()}`
+      };
+
+      await emailjs.send(
+        "service_fpdb9v1",
+        "template_3skxj4r",
+        templateParams,
+        "oJAmWVw7zKEZLk5gI"
+      );
+
+      toast.dismiss(loadingToast);
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      console.error("Failed to send email notification:", error);
+    }
+  };
 
   const handleWithdraw = async () => {
     setErrorMessage("");
@@ -50,22 +81,38 @@ export default function WithdrawTab({
       return;
     }
     
-      try {
-    const withdrawalRef = ref(rtdb, `withdrawals/${data.uid}_${Date.now()}`);
-    await update(withdrawalRef, {
-      amount: amountNum,
-      account: savedMethods[selectedMethod].fullDetails,
-      status: "pending",
-      timestamp: Date.now()
-    });
-    toast.success("Withdrawal request submitted for approval");
-  } catch (error) {
-    toast.error("Withdrawal failed: " + error.message);
-  }
+    try {
+      const withdrawalData = {
+        userId: data.uid,
+        amount: amountNum,
+        account: savedMethods[selectedMethod].fullDetails,
+        status: "pending",
+        userEmail: data.email,
+        userName: data.displayName,
+        type: "withdrawal",
+        createdAt: new Date()
+      };
+      
+      // Add to Firestore only
+      await addDoc(collection(db, "transactions"), withdrawalData);
+      
+      await sendWithdrawalEmail(amountNum, savedMethods[selectedMethod].fullDetails);
+      toast.success("Withdrawal request submitted for approval");
+      
+      // Clear form after successful submission
+      setAmount("");
+      setSelectedMethod(null);
+    } catch (error) {
+      toast.error("Withdrawal failed: " + error.message);
+      console.error(error);
+    }
   };
 
   return (
     <div className="p-6 space-y-6">
+      {/* Hidden form for EmailJS */}
+      <form ref={emailFormRef} style={{ display: 'none' }}></form>
+      
       <h3 className="text-xl font-bold">Withdraw Funds</h3>
       
       <div className="space-y-4">

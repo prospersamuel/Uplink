@@ -6,7 +6,7 @@ import { FiZap, FiUsers, FiSettings } from "react-icons/fi";
 const plans = [
   {
     name: "Promoter",
-    price: "₦4,999",
+    price: "₦5000",
     description: "For individuals who want to earn by referring",
     features: [
       "Browse and join campaigns",

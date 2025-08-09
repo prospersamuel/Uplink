@@ -61,6 +61,8 @@ if (auth.currentUser.emailVerified) {
           <p className="text-slate-600 dark:text-slate-100 mb-6">
             We've sent a verification link to <br />
             <span className="font-medium text-slate-800 dark:text-primary-light">{auth.currentUser?.email}</span>
+            <br />
+            <span className="text-xs text-slate-800 dark:text-slate-500">can't find it? Check your spam folder.</span>
           </p>
           
           <div className="w-full bg-slate-100 dark:bg-slate-400 rounded-full h-2.5 mb-6">

@@ -13,6 +13,7 @@ import Login from "./pages/Login/Login";
 import { Toaster } from "react-hot-toast";
 import { useApp } from "./context/Appcontext";
 import { AuthLoader } from "./components/AuthLoader";
+import NotFound from "./pages/Notfound";
 
 function AppContent() {
   const { theme, showLogin, setShowLogin } = useApp();
@@ -58,23 +59,24 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-       <Route
-  path="/dashboard"
-  element={
-    <RequireAuth
-      onRoleFetched={(fetchedRole) => {
-        setRole(fetchedRole);
-        localStorage.setItem("userRole", fetchedRole); // optional fallback
-      }}
-    >
-      {role === "promoter" ? (
-        <PromoterDashboard />
-      ) : (
-        <CompanyDashboard />
-      )}
-    </RequireAuth>
-  }
-/>
+        <Route
+          path="/dashboard"
+          element={
+            <RequireAuth
+              onRoleFetched={(fetchedRole) => {
+                setRole(fetchedRole);
+                localStorage.setItem("userRole", fetchedRole); // optional fallback
+              }}
+            >
+              {role === "promoter" ? (
+                <PromoterDashboard />
+              ) : (
+                <CompanyDashboard />
+              )}
+            </RequireAuth>
+          }
+        />
+        <Route path="*" element={<NotFound/>}></Route>
       </Routes>
 
       {showLogin && <Login onClose={() => setShowLogin(false)} />}

@@ -30,7 +30,7 @@ export default function CompanyWallet() {
   }, []);
 
   const config = {
-    public_key: `FLWPUBK_TEST-827bc96dd80e6fb642e6ee53f9783b45-X`,
+    public_key: `${import.meta.env.VITE_FLW_PUBLIC_KEY}`,
     tx_ref: `${data?.uid}_${Date.now()}`,
     amount: parseFloat(amount) || 0,
     currency: 'NGN',
@@ -55,29 +55,12 @@ export default function CompanyWallet() {
 
 const initiateFlutterPayment = () => {
   const loadingToastId = toast.loading('Initializing payment gateway...');
-  
-  handleFlutterPayment({
+    handleFlutterPayment({
     callback: async (response) => {
-      const { status, tx_ref, transaction_id } = response;
-
-      try {
-        if (status === "successful") {
-          toast.dismiss(loadingToastId);
-          // Optionally: Verify with your backend here
-          toast.success("Payment verified and balance updated!");
-          refresh();
-        } else {
-          toast.dismiss(loadingToastId);
-          toast.error("Payment was not successful.");
-          console.warn("Unsuccessful payment:", response);
-        }
-      } catch (err) {
-        toast.dismiss(loadingToastId);
-        toast.error("Payment verification failed. Please contact support.");
-        console.error("Payment verification error:", err);
-      } finally {
-        closePaymentModal();
-      }
+      toast.dismiss(loadingToastId);
+      toast.success(`Payment of ${amount} was successful!`);
+      refresh()
+      closePaymentModal();
     },
     onClose: () => {
       toast.dismiss(loadingToastId);
@@ -85,6 +68,38 @@ const initiateFlutterPayment = () => {
     },
   });
 };
+
+
+
+// const initiateFlutterPayment = () => {
+//   const loadingToastId = toast.loading('Initializing payment gateway...');
+  
+//   handleFlutterPayment({
+//     callback: async (response) => {
+//   const { status, transaction_id } = response;
+//   toast.dismiss(loadingToastId);
+
+//   try {
+//     const verifyRes = await fetch(`/api/verify-payment/${transaction_id}`);
+//     const verifyData = await verifyRes.json();
+
+//     if (verifyData?.data.status === "success") {
+//       toast.success(`Payment of ₦${verifyData?.data.amount} verified successfully.`);
+//       refresh();
+//     } else {
+//       toast.error("Payment verification failed.");
+//       console.warn("Verification failed:", verifyData);
+//     }
+//   } catch (err) {
+//     closePaymentModal();
+//     toast.error("⚠️ Payment verification request failed.");
+//     console.error("Verification error:", err);
+//   } finally {
+//     closePaymentModal();
+//   }
+// }
+//   });
+// };
 
   const savePaymentMethod = (methodDetails) => {
     const method = {

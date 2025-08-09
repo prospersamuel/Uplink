@@ -1,106 +1,97 @@
 import {FiBarChart2, FiCopy, FiLink, FiPlus} from "react-icons/fi";
+import { LuCalendarDays } from "react-icons/lu";
 import { VscPreview } from "react-icons/vsc";
 
 export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }) {
   return (
     <>
-      <div className="space-y-6 h-[44vh] overflow-auto">
+      <div className="space-y-4 h-[44vh] overflow-auto">
         <div className="p-6 bg-slate-50 dark:bg-slate-700/30 rounded-md">
           <h3 className="text-lg font-medium text-slate-800 dark:text-slate-200 mb-4">
             Campaign Summary
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+            <div className="bg-white/70 h-fit dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
                <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
       <FiBarChart2 className="text-blue-500" />
       Basic Info
     </h4>
-              <div className="space-y-2 text-sm">
-                <p>
+              <div className="space-y-0.5 text-sm">
                   <span className="text-slate-500">Name:</span>{" "}
-                  {campaignData.name}
-                </p>
-                <p>
-                  <span className="text-slate-500">Status:</span>{" "}
+                <div className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
+                  {campaignData.name || 'Not set'}
+                </div>
+                 <span className="text-slate-500">Status:</span>{" "}
+                <div className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
                   {campaignData.status.charAt(0).toUpperCase() +
                     campaignData.status.slice(1)}
-                </p>
-                <p>
-                  <span className="text-slate-500">Target URL:</span>{" "}
+                </div>
+
+                 <span className="text-slate-500">Target URL:</span>{" "}
+                <p className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
                   {campaignData.targetUrl || "Not set"}
                 </p>
-              </div>
-            </div>
-
-            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
-               <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-      <FiPlus className="text-blue-500" />
-      Reward Settings
-    </h4>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-slate-500">Type:</span>{" "}
-                  {campaignData.rewardType === "percentage"
-                    ? `${campaignData.rewardAmount}% of purchase`
-                    : campaignData.rewardType === "fixed"
-                    ? `₦${campaignData.rewardAmount} fixed`
-                    : campaignData.customReward}
-                </p>
-                <p>
-                  <span className="text-slate-500">Trigger:</span> On{" "}
-                  {campaignData.rewardTrigger}
-                </p>
-                {campaignData.rewardTrigger === 'task' ?
-                
-                  <textarea 
-                  value={campaignData.customTask} 
+                  <span className="text-slate-500">Description:</span>{" "}
+                <textarea 
+                  value={campaignData.desription || 'Not set'} 
                   rows={2} 
                   readOnly 
-                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500" name="" id="">
+                  className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2" name="" id="">
 
-                  </textarea> : ''
-              }
+                  </textarea>
               </div>
             </div>
 
-            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+            <div className="space-y-2">
+            <div className="bg-white/70 h-fit dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
                <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-      <VscPreview className="text-blue-500" />
-      Campaign Rules
+      <LuCalendarDays className="text-blue-500" />
+      Campaign Duration
     </h4>
-              <div className="space-y-2 text-sm">
-                <p>
+              <div className="space-y-0.5 text-sm">
                   <span className="text-slate-500">Duration:</span>{" "}
-                  {campaignData.startDate}{" "}
+                <p className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
+                  {campaignData.startDate || 'Not set'}{" "}
                   {campaignData.hasEndDate
-                    ? `to ${campaignData.endDate}`
+                    ? `to ${campaignData.endDate || 'Not set'}`
                     : "(No end date)"}
                 </p>
               </div>
             </div>
 
-            <div className="bg-white/70 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
+            <div className="bg-white/70 h-fit dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600">
                <h4 className="font-medium text-slate-700 dark:text-slate-300 mb-3 flex items-center gap-2">
-      <FiLink className="text-blue-500" />
-      Referral Link
+      <FiPlus className="text-blue-500" />
+      Reward Settings
     </h4>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={campaignData.targetUrl}
-                  readOnly
-                  className="flex-1 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate"
-                />
-                <button
-                  type="button"
-                  onClick={copyReferralLink}
-                  className="p-2 text-slate-500 hover:text-blue-500"
-                  title="Copy link"
-                >
-                  <FiCopy size={18} />
-                </button>
+              <div className="space-y-0.5 text-sm">
+                  <span className="text-slate-500">Type:</span>{" "}
+                <p className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
+                  {campaignData.rewardType === "percentage"
+                    ? `${campaignData.rewardAmount || '0'}% of purchase`
+                    : campaignData.rewardType === "fixed"
+                    ? `₦${campaignData.rewardAmount || '0'} fixed`
+                    : campaignData.customReward || 'Not set'}
+                </p>
+                  <span className="text-slate-500">Trigger:</span>{" "}
+                  <div className="space-y-2">
+                <p className=" h-9 px-3 py-2 border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate">
+                  On {campaignData.rewardTrigger }
+                </p>
+                {campaignData.rewardTrigger === 'task' ?
+                
+                  <textarea 
+                  value={campaignData.customTask || 'Not set'} 
+                  rows={2} 
+                  readOnly 
+                  className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2" name="" id="">
+
+                  </textarea> : ''
+              }
               </div>
+              </div>
+            </div>
             </div>
           </div>
         </div>

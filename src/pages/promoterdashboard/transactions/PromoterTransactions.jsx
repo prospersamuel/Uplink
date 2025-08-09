@@ -27,8 +27,8 @@ export default function PromoterTransactions() {
   const transactions = [
     {
       id: 1,
-      type: "deposit",
-      amount: 5000,
+      type: "withdrawal",
+      amount: 250,
       status: "completed",
       timestamp: Date.now(),
     },
@@ -36,42 +36,27 @@ export default function PromoterTransactions() {
       id: 2,
       type: "withdrawal",
       amount: 250,
-      status: "completed",
+      status: "failed",
       timestamp: Date.now(),
     },
     {
       id: 3,
-      type: "campaign_created",
-      amount: 100,
-      status: "completed",
+      type: "withdrawal",
+      amount: 250,
+      status: "pending",
       timestamp: Date.now(),
-    },
-    {
-      id: 4,
-      type: "campaign_deleted",
-      amount: 50,
-      status: "completed",
-      timestamp: Date.now() - 86400000, // yesterday
-    },
-    {
-      id: 5,
-      type: "campaign_created",
-      amount: 200,
-      status: "failed",
-      timestamp: Date.now() - 172800000, // 2 days ago
     },
   ];
 
   const filters = [
     { id: "all", label: "All" },
-    { id: "deposit", label: "Deposits" },
     { id: "withdrawal", label: "Withdrawals" },
-    { id: "campaigns", label: "Campaigns" },
   ];
 
   const statuses = {
-    completed: { color: "bg-green-500", text: "Completed" },
-    failed: { color: "bg-red-500", text: "Failed" }
+    completed: { color: "bg-green-500", text: "Successful" },
+    failed: { color: "bg-red-500", text: "Failed" },
+    pending: { color: "bg-yellow-500", text: "Pending" },
   };
 
   const filteredTransactions = transactions.filter(tx => {
@@ -79,9 +64,7 @@ export default function PromoterTransactions() {
     let matchesFilter = false;
     if (activeFilter === "all") {
       matchesFilter = true;
-    } else if (activeFilter === "campaigns") {
-      matchesFilter = tx.type.includes("campaign");
-    } else {
+    }else {
       matchesFilter = tx.type === activeFilter;
     }
     
@@ -89,8 +72,7 @@ export default function PromoterTransactions() {
     const matchesSearch = searchQuery === "" || 
       tx.amount.toString().includes(searchQuery) ||
       tx.status.toString().includes(searchQuery) ||
-      tx.timestamp.toString().includes(searchQuery) ||
-      tx.type.toString().includes(searchQuery)
+      tx.timestamp.toString().includes(searchQuery)
     
     // Filter by date range
     const txDate = new Date(tx.timestamp);
@@ -126,27 +108,10 @@ export default function PromoterTransactions() {
 
   const getTypeIcon = (type) => {
     switch (type) {
-      case "deposit":
-        return <FiArrowDownLeft className="text-green-500" />;
       case "withdrawal":
         return <RiExchangeLine className="text-blue-500" />;
-      case "campaign_created":
-        return <MdCampaign className="text-green-500" />;
-      case "campaign_deleted":
-        return <MdCampaign className="text-red-500" />;
       default:
         return <FiArrowUpRight />;
-    }
-  };
-
-  const getTypeLabel = (type) => {
-    switch (type) {
-      case "campaign_created":
-        return "Campaign Created";
-      case "campaign_deleted":
-        return "Campaign Deleted";
-      default:
-        return type.charAt(0).toUpperCase() + type.slice(1);
     }
   };
 
@@ -279,19 +244,13 @@ export default function PromoterTransactions() {
                       {getTypeIcon(tx.type)}
                     </div>
                     <div>
-                      <div className="font-medium">{getTypeLabel(tx.type)}</div>
+                      <div className="font-medium">{tx.type}</div>
                     </div>
                   </div>
 
                   <div className="col-span-2">
-                    <div className={`font-medium ${
-                      tx.type === "deposit" || tx.type === "campaign_created" 
-                        ? "text-green-600 dark:text-green-400" 
-                        : ["withdrawal", "campaign_deleted"].includes(tx.type) 
-                          ? "text-red-600 dark:text-red-400" 
-                          : ""
-                    }`}>
-                      {tx.type === "deposit" || tx.type === "campaign_created" ? "+" : "-"}
+                    <div className="font-medium text-red-600 dark:text-red-400">
+                      {"-"}
                       {tx.amount} NG
                     </div>
                   </div>

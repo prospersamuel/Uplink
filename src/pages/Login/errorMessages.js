@@ -10,4 +10,5 @@
     "auth/weak-password": "Password should be at least 6 characters.",
     "auth/invalid-credential": "Invalid login credentials.",
     "auth/requires-recent-login": "Please log in again.",
+    "auth/popup-closed-by-user": "You closed the login popup before completing the sign-in."
   };

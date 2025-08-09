@@ -83,7 +83,7 @@ export default function HeroSection() {
           className="absolute -bottom-6 -left-2 sm:bottom-10 sm:left-10 bg-white dark:bg-neutral-800 sm:p-4 p-2 rounded-xl shadow-xl border border-neutral-100 dark:border-neutral-700"
         >
           <div className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Active Campaign</div>
-          <div className="sm:text-xl text-md font-bold text-primary">₦5,240 Earned</div>
+          <div className="sm:text-xl text-md font-bold text-primary">₦50,240 Earned</div>
         </motion.div>
       </motion.div>
     </section>
