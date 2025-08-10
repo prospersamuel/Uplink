@@ -134,8 +134,8 @@ export default function CompanyNotificationCenter() {
                           !notification.read ? 'bg-blue-500' : 'bg-transparent'
                         }`} />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">{notification.message}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{notification.time}</p>
+                          <p className="text-sm select-none font-medium">{notification.message}</p>
+                          <p className="text-xs select-none text-slate-500 dark:text-slate-400 mt-1">{notification.time}</p>
                         </div>
                         {!notification.read && (
                           <button 
