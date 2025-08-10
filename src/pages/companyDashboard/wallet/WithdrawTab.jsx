@@ -88,10 +88,10 @@ export default function WithdrawTab({
         account: savedMethods[selectedMethod].fullDetails,
         status: "pending",
         userEmail: data.email,
-        userName: data.displayName,
+        userName: data.displayName || data.name,
         type: "withdrawal",
-        createdAt: new Date()
-      };
+        createdAt: new Date() // Using native Date for consistency
+      };      
       
       // Add to Firestore only
       await addDoc(collection(db, "transactions"), withdrawalData);
