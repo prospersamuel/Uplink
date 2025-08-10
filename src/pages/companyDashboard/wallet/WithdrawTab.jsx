@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import PaymentMethodList from "./PaymentMethodList";
 import { db } from "../../../services/firebase"; // Remove rtdb import
 import emailjs from '@emailjs/browser';
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc, Timestamp } from "firebase/firestore";
 
 export default function WithdrawTab({
   amount,
@@ -92,9 +92,11 @@ export default function WithdrawTab({
         type: "withdrawal",
         createdAt: new Date() // Using native Date for consistency
       };      
+
+      const withdrawalDocId = `withdrawals_${data.uid}`;
       
       // Add to Firestore only
-      await addDoc(collection(db, "transactions"), withdrawalData);
+      await setDoc(doc(db, "transactions", withdrawalDocId), withdrawalData);
       
       await sendWithdrawalEmail(amountNum, savedMethods[selectedMethod].fullDetails);
       toast.success("Withdrawal request submitted for approval");

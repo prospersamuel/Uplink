@@ -34,7 +34,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
                 </p>
                   <span className="text-slate-500">Description:</span>{" "}
                 <textarea 
-                  value={campaignData.desription || 'Not set'} 
+                  value={campaignData.description || 'Not set'} 
                   rows={2} 
                   readOnly 
                   className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2" name="" id="">
@@ -82,7 +82,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
                 {campaignData.rewardTrigger === 'task' ?
                 
                   <textarea 
-                  value={campaignData.customTask || 'Not set'} 
+                  value={campaignData.taskDescription || 'Not set'} 
                   rows={2} 
                   readOnly 
                   className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2" name="" id="">

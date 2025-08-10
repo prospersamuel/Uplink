@@ -35,6 +35,7 @@ export default function CompanyNotificationCenter() {
   const deleteNotification = (id) => {
     setNotifications(notifications.filter(n => n.id !== id));
     setContextMenu({ ...contextMenu, visible: false });
+    setIsOpen(true)
   };
 
   const handleContextMenu = (e, notificationId) => {

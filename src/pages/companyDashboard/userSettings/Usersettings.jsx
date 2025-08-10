@@ -11,10 +11,15 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, updateDoc, deleteDoc, writeBatch,
+  collection, 
+  query, 
+  where, 
+  getDocs  } from "firebase/firestore";
 import { db } from "../../../services/firebase";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+
 
 export function ProfileSettings({ userData }) {
   const auth = getAuth();
@@ -128,7 +133,25 @@ export function ProfileSettings({ userData }) {
 
     try {
       // First delete Firestore document
-      await deleteDoc(doc(db, "users", user.uid));
+     const userCollections = [
+      { name: "transactions", field: "userId" },
+      { name: "referrals", field: "promoterId" },
+      { name: "campaigns", field: "ownerId" },
+      { name: "webhook_logs", field: "userid" }
+    ];
+        const batch = writeBatch(db);
+    
+    // Delete user's main document
+     batch.delete(doc(db, "users", user.uid))
+
+       for (const {name, field} of userCollections) {
+      const q = query(collection(db, name), where(field, "==", user.uid));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(doc => batch.delete(doc.ref));
+    }
+
+
+    await batch.commit();
 
       try {
         await deleteUser(user);

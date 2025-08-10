@@ -23,7 +23,7 @@ export const RewardSettingsStep = ({
   const handleCustomTaskChange = (e) => {
     setCampaignData({
       ...campaignData,
-      customTask: e.target.value,
+      taskDescription: e.target.value,
     });
   };
 
@@ -138,7 +138,7 @@ export const RewardSettingsStep = ({
           <div className="mt-2">
             <input
               type="text"
-              value={campaignData.customTask}
+              value={campaignData.taskDescription}
               onChange={handleCustomTaskChange}
               className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md bg-white dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter task description (e.g. 'Complete profile')"
