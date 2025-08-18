@@ -37,7 +37,6 @@ import { MdCampaign } from "react-icons/md";
 
 export default function CompanyDashboard() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { theme, toggleTheme } = useApp();
@@ -70,7 +69,6 @@ export default function CompanyDashboard() {
         setUser(firebaseUser); // 👈 set user here
         setPhotoURL(firebaseUser.photoURL);
         setUsername(firebaseUser.displayName);
-        setTimeout(() => setLoading(false), 800);
       }
     });
     return () => unsubscribe();
@@ -248,11 +246,6 @@ const toggleSection = (section) => {
           transition={{ duration: 0.3 }}
           className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 p-4 md:p-6 min-h-fit overflow-auto w-full"
         >
-          {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="animate-pulse">Loading data...</div>
-            </div>
-          ) : (
             <AnimatePresence mode="wait">
               <motion.div
                 initial={{ opacity: 0 }}
@@ -264,7 +257,6 @@ const toggleSection = (section) => {
                 {getActiveComponent()}
               </motion.div>
             </AnimatePresence>
-          )}
         </motion.div>
       </main>
 

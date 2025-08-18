@@ -51,7 +51,7 @@ export default function Footer() {
                   href={social.link}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-slate-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300 hover:bg-primary/10 hover:text-primary transition-colors"
+                  className="w-10 h-10 rounded-full bg-neutral-100 dark:bg-slate-800 flex items-center justify-center text-neutral-700 dark:text-neutral-300 hover:bg-primary/10 hover:text-primary dark:hover:bg-primary/10 dark:hover:text-primary transition-colors"
                 >
                   {social.icon}
                 </a>
@@ -65,7 +65,7 @@ export default function Footer() {
             <ul className="space-y-3">
               {productLinks.map((link, i) => (
                 <li key={i}>
-                  <a href={link.link} className="text-neutral-600 dark:text-neutral-400 hover:text-primary transition-colors flex items-center">
+                  <a href={link.link} className="text-neutral-600 dark:text-neutral-400 hover:text-primary dark:hover:text-primary transition-colors flex items-center">
                     {link.name} <FiArrowUpRight className="ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </a>
                 </li>
@@ -85,7 +85,7 @@ export default function Footer() {
               <a 
                 key={i} 
                 href={link.link}
-                className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-primary transition-colors"
+                className="text-sm text-neutral-600 dark:text-neutral-400 hover:text-primary dark:hover:text-primary transition-colors"
               >
                 {link.name}
               </a>
@@ -94,7 +94,7 @@ export default function Footer() {
 
           <button
             onClick={openLogin}
-            className="bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition-all flex items-center gap-2"
+            className="bg-gradient-to-r from-primary to-cyan-500 hover:scale-105 text-white px-6 py-3 rounded-lg font-semibold shadow hover:shadow-lg transition-all flex items-center gap-2"
           >
             Login to Dashboard <FiArrowUpRight />
           </button>

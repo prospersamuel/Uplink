@@ -37,8 +37,7 @@ export function ReviewStep({ campaignData, copyReferralLink, calculateEarnings }
                   value={campaignData.description || 'Not set'} 
                   rows={2} 
                   readOnly 
-                  className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2" name="" id="">
-
+                  className="border outline-none border-slate-300 dark:border-slate-600 rounded-md bg-slate-100 dark:bg-slate-700 text-sm truncate w-full px-3 py-2">
                   </textarea>
               </div>
             </div>

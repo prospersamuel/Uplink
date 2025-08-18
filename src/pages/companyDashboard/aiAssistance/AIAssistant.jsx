@@ -58,7 +58,7 @@ export default function AIAssistant() {
           >
             <div className="p-4 border-b border-slate-200/50 dark:border-slate-700/50 bg-gradient-to-r from-blue-500 to-indigo-600 mb-1 text-white">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-white/60 animate-pulsing animate-iteration-count-infinite"></div>
+                <div className="p-2 rounded-lg bg-white/80 animate-pulsing animate-iteration-count-infinite"></div>
                 <h3 className="font-semibold">Optimization Assistant</h3>
                 <span onClick={() => setIsOpen(false)} className="font-bold text-3xl cursor-pointer absolute right-3">×</span>
               </div>

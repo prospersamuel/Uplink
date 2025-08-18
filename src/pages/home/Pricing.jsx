@@ -161,7 +161,7 @@ export default function PricingSection() {
                     className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
                       plan.popular
                         ? "bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg"
-                        : `bg-${plan.color}-100 dark:bg-${plan.color}-900/50 text-${plan.color}-600 dark:text-${plan.color}-300 border border-${plan.color}-200 dark:border-${plan.color}-700`
+                        : `bg-${plan.color}-100 dark:bg-${plan.color}-900/50 text-${plan.color}-600 dark:text-${plan.color}-300 border border-${plan.color}-200 dark:border-primary`
                     }`}
                   >
                     {plan.cta}
@@ -177,7 +177,7 @@ export default function PricingSection() {
                       className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
                         plan.popular
                           ? "bg-gradient-to-r from-primary to-cyan-500 text-white shadow-lg"
-                          : `bg-${plan.color}-100 dark:bg-${plan.color}-900/50 text-${plan.color}-600 dark:text-${plan.color}-300 border border-${plan.color}-200 dark:border-${plan.color}-700`
+                          : `bg-${plan.color}-100 dark:bg-${plan.color}-900/50 text-${plan.color}-600 dark:text-${plan.color}-300 border border-${plan.color}-200 dark:border-purple-600`
                       }`}
                     >
                       {plan.cta}

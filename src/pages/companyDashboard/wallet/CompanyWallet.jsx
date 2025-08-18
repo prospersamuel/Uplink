@@ -1,7 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useFlutterwave, closePaymentModal } from 'flutterwave-react-v3';
-import { db } from "../../../services/firebase";
 import toast from "react-hot-toast";
 import logo from '../../../assets/logo.png';
 import useUserData from "../../../hooks/useCompanyStats";
@@ -9,7 +8,6 @@ import WalletBalanceCard from "./WalletBalanceCard";
 import DepositTab from "./DepositTab";
 import WithdrawTab from "./WithdrawTab";
 import BankTab from "./BankTab";
-import { doc, increment, setDoc, updateDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
 export default function CompanyWallet() {
@@ -103,7 +101,6 @@ const initiateFlutterPayment = () => {
 
   const savePaymentMethod = (methodDetails) => {
     const method = {
-      type: "bank",
       name: `${methodDetails.bankName} - ${methodDetails.accountName}`,
       details: `Account: ${methodDetails.accountNumber}`,
       fullDetails: { ...methodDetails }

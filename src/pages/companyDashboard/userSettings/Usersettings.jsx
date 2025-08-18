@@ -11,7 +11,7 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
-import { doc, updateDoc, deleteDoc, writeBatch,
+import { doc, updateDoc, writeBatch,
   collection, 
   query, 
   where, 
@@ -31,6 +31,7 @@ export function ProfileSettings({ userData }) {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const {theme} = useApp()
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
@@ -122,8 +123,8 @@ export function ProfileSettings({ userData }) {
       confirmButtonColor: "#ef4444",
       cancelButtonColor: "#6b7280",
       confirmButtonText: "Yes, delete it",
-      background: "#1f2937",
-      color: "#f8fafc",
+        background: theme === 'dark' ? "#1f2937" : '#fff',
+        color: theme === 'dark' ? "#f8fafc" : '#1f2937',
     });
 
     if (!result.isConfirmed) return;
@@ -135,9 +136,8 @@ export function ProfileSettings({ userData }) {
       // First delete Firestore document
      const userCollections = [
       { name: "transactions", field: "userId" },
-      { name: "referrals", field: "promoterId" },
       { name: "campaigns", field: "ownerId" },
-      { name: "webhook_logs", field: "userid" }
+      { name: "webhook_logs", field: "userId" }
     ];
         const batch = writeBatch(db);
     
@@ -303,6 +303,7 @@ export function ProfileSettings({ userData }) {
 
 import { updatePassword } from "firebase/auth";
 import { errorMessages } from "../../Login/errorMessages";
+import { useApp } from "../../../context/Appcontext";
 
 export function SecuritySettings() {
   const auth = getAuth();

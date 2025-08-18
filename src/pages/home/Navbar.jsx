@@ -68,7 +68,7 @@ export default function Navbar() {
             }}
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
-            className="flex items-center gap-2 bg-gradient-to-r from-primary to-cyan-500 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
+            className="flex items-center gap-1 bg-gradient-to-r from-primary to-cyan-500 text-white px-4 py-2 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
           >
             Login <FiLogIn size={14} />
           </motion.button>
@@ -107,7 +107,7 @@ export default function Navbar() {
               className="ml-4 p-2 animate-slide-in-right rounded-full hover:bg-neutral-200 dark:hover:bg-slate-700 transition"
               aria-label="Toggle theme"
             >
-              {theme === "dark" ? <FaSun size={18} /> : <FaMoon size={18} />}
+              {theme === "dark" ? <FaSun size={30} /> : <FaMoon size={30} />}
             </button>
             <button
               className="absolute top-3 font-extrabold right-3"
@@ -133,7 +133,7 @@ export default function Navbar() {
               }}
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="flex items-center gap-2 animate-slide-in-right bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all text-lg"
+              className="flex items-center gap-1 animate-slide-in-right bg-gradient-to-r from-primary to-cyan-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl transition-all text-lg"
             >
               Login <FiLogIn size={14} />
             </motion.button>

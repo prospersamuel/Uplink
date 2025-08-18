@@ -138,7 +138,7 @@ export default function CompanyTransactions() {
   if (transactionsLoading) {
     return (
        <div className="h-[70vh]">
-              <AuthLoader headerText={'Loading transactions'}/>
+              <AuthLoader />
         </div>
     );
   }
@@ -320,7 +320,7 @@ export default function CompanyTransactions() {
 
                  <div className="col-span-3 items-center">
   <div className="flex items-center gap-2">
-    <span className={`w-2 h-2 rounded-full ${
+    <span className={`w-2 h-2 animate-pulsing animate-iteration-count-infinite rounded-full ${
       tx.status === 'successful' ? 'bg-green-500' : 
       tx.status === 'pending' ? 'bg-yellow-500' : 
       'bg-red-500'

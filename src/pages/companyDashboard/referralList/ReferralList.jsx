@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { FiUser, FiMoreVertical, FiSearch, FiChevronLeft, FiChevronRight, FiUpload, FiTrash2 } from "react-icons/fi";
 
-// Mock data - in a real app you'd fetch this from an API
-const mockData = Array.from({ length: 45 }, (_, i) => ({
+// Mock data - now includes campaign field
+const mockData = Array.from({ length: 30 }, (_, i) => ({
   id: `ref${i + 1}`,
   referrer: `user${i + 1}`,
   reward: `₦${Math.floor(Math.random() * 50) + 10}`,
   status: ['Pending', 'Approved', 'Rejected'][Math.floor(Math.random() * 3)],
   date: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+  campaign: ['Summer Sale', 'New User Bonus', 'Holiday Special', 'Referral Program'][Math.floor(Math.random() * 4)],
 }));
 
 export default function ReferralList() {
@@ -19,18 +20,16 @@ export default function ReferralList() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const itemsPerPage = 20;
 
-
   const handleDelete = (id) => {
-  setData(prev => prev.filter(item => item.id !== id));
-  setOpenMenuId(null); // Close the menu after deletion
-};
+    setData(prev => prev.filter(item => item.id !== id));
+    setOpenMenuId(null); // Close the menu after deletion
+  };
 
-// Add this useEffect hook with your other hooks
-useEffect(() => {
-  const handleClickOutside = () => setOpenMenuId(null);
-  document.addEventListener('click', handleClickOutside);
-  return () => document.removeEventListener('click', handleClickOutside);
-}, []);
+  useEffect(() => {
+    const handleClickOutside = () => setOpenMenuId(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
 
   // Filter and search logic
   useEffect(() => {
@@ -40,7 +39,9 @@ useEffect(() => {
     if (searchTerm) {
       result = result.filter(item => 
         item.referrer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.id.toLowerCase().includes(searchTerm.toLowerCase())
+        item.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.date.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.campaign.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
@@ -113,11 +114,12 @@ useEffect(() => {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto h-[55vh]">
+      <div>
         <table className="w-full">
           <thead>
             <tr className="text-sm text-slate-600 dark:text-slate-300 border-b-2 border-slate-200/50 dark:border-slate-700/50">
               <th className="px-6 py-3 text-left font-medium">Referrer</th>
+              <th className="px-6 py-3 text-left font-medium">Campaign</th>
               <th className="px-6 py-3 text-left font-medium">Date</th>
               <th className="px-6 py-3 text-left font-medium">Reward</th>
               <th className="px-6 py-3 text-left font-medium">Status</th>
@@ -139,6 +141,7 @@ useEffect(() => {
                       </div>
                     </div>
                   </td>
+                  <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{ref.campaign}</td>
                   <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-300">{ref.date}</td>
                   <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-100">{ref.reward}</td>
                   <td className="px-6 py-4">
@@ -162,7 +165,8 @@ useEffect(() => {
                           Approve
                         </button>
                       )}
-                      {ref.status !== 'Rejected' && (
+                      {/* Only show reject button if status is not Approved or Rejected */}
+                      {ref.status === 'Pending' && (
                         <button 
                           className="px-3 py-1 text-xs bg-red-500 hover:bg-red-600 text-white rounded transition-colors"
                           onClick={() => handleStatusChange(ref.id, 'Rejected')}
@@ -171,33 +175,33 @@ useEffect(() => {
                         </button>
                       )}
                       <button
-  className="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 relative"
-  onClick={(e) => {
-    e.stopPropagation();
-    setOpenMenuId(openMenuId === ref.id ? null : ref.id);
-  }}
->
-  <FiMoreVertical size={16} />
-  {openMenuId === ref.id && (
-    <button
-    title='delete user'
-      className="absolute -right-5 -top-5 z-10 px-2 py-1.5 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors shadow-lg"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleDelete(ref.id);
-      }}
-    >
-      <FiTrash2 />
-    </button>
-  )}
-</button>
+                        className="p-1.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-700/50 relative"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === ref.id ? null : ref.id);
+                        }}
+                      >
+                        <FiMoreVertical size={16} />
+                        {openMenuId === ref.id && (
+                          <button
+                            title='delete user'
+                            className="absolute -right-5 -top-5 z-10 px-2 py-1.5 text-xs bg-slate-600 hover:bg-slate-500 text-white rounded transition-colors shadow-lg"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(ref.id);
+                            }}
+                          >
+                            <FiTrash2 />
+                          </button>
+                        )}
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
+                <td colSpan="6" className="px-6 py-8 text-center text-slate-500 dark:text-slate-400">
                   No referrals found matching your criteria
                 </td>
               </tr>

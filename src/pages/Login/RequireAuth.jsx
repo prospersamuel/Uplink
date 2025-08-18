@@ -6,15 +6,34 @@ import { useEffect, useState } from "react";
 import { AuthLoader } from "../../components/AuthLoader";
 import Swal from "sweetalert2";
 import useNetworkStatus from "../../services/useNetworkStatus";
+import { useApp } from "../../context/Appcontext";
 
 export default function RequireAuth({ children, onRoleFetched }) {
   const [user, loading] = useAuthState(auth);
   const [role, setRole] = useState(null);
   const [roleLoading, setRoleLoading] = useState(true);
   const { isOffline } = useNetworkStatus();
+  const {theme} = useApp()
 
-  // Fetch role from Firestore after user is ready
+  // Offline alert
   useEffect(() => {
+    if (isOffline) {
+      Swal.fire({
+        title: "Offline",
+        text: "You are currently in offline mode, any changes made will not be updated!",
+        icon: "warning",
+        confirmButtonColor: "#ef4444",
+        confirmButtonText: "OK",
+        background: theme === 'dark' ? "#1f2937" : '#fff',
+        color: theme === 'dark' ? "#f8fafc" : '#1f2937',
+      });
+    }
+  }, [isOffline]);
+
+  // Fetch role
+  useEffect(() => {
+    const ROLE_STORAGE_KEY = `userRole_${user?.uid || 'guest'}`;
+
     const fetchRole = async () => {
       if (!user) {
         setRole(null);
@@ -22,37 +41,24 @@ export default function RequireAuth({ children, onRoleFetched }) {
         return;
       }
 
-      const cachedRole = localStorage.getItem(`user_role_${user.uid}`);
-      if (cachedRole) {
-        setRole(cachedRole);
-
-        // Show offline alert only if offline
-        if (isOffline) {
-          Swal.fire({
-            title: "Offline",
-            text: "You are currently in offline mode, any changes made will not be updated!",
-            icon: "warning",
-            confirmButtonColor: "#ef4444",
-            confirmButtonText: "OK",
-            background: "#1f2937",
-            color: "#f8fafc",
-          });
+      try {
+        // Try to get from cache first
+        const cachedRole = localStorage.getItem(ROLE_STORAGE_KEY);
+        if (cachedRole) {
+          setRole(cachedRole);
+          if (onRoleFetched) onRoleFetched(cachedRole);
         }
 
-        setRoleLoading(false);
-        return;
-      }
-
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          const fetchedRole = userSnap.data().role;
-          setRole(fetchedRole);
-          localStorage.setItem("userRole", fetchedRole);
-          if (onRoleFetched) onRoleFetched(fetchedRole);
-        } else {
-          setRole(null);
+        // Try to fetch fresh if online
+        if (!isOffline) {
+          const userRef = doc(db, "users", user.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            const fetchedRole = userSnap.data().role;
+            setRole(fetchedRole);
+            localStorage.setItem(ROLE_STORAGE_KEY, fetchedRole);
+            if (onRoleFetched) onRoleFetched(fetchedRole);
+          }
         }
       } catch (err) {
         console.error("Error fetching role:", err);
@@ -64,18 +70,9 @@ export default function RequireAuth({ children, onRoleFetched }) {
     if (!loading) fetchRole();
   }, [user, loading, isOffline]);
 
-  // Show loader while either auth or role is loading
-  if (loading || roleLoading) {
-    return <AuthLoader />;
-  }
-
-  // Redirects
+  if (loading || roleLoading) return <AuthLoader />;
   if (!user) return <Navigate to="/" replace />;
-  if (!user || loading || roleLoading || !role) return <AuthLoader />;
   if (!user.emailVerified) return <Navigate to="/verify-email" replace />;
-
-  // Pass role if needed
-  if (onRoleFetched) onRoleFetched(role);
 
   return children;
 }
